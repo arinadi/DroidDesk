@@ -33,7 +33,7 @@ You can install the script directly from this repository or run it from a local 
 ### Option 1: Download and run directly from GitHub
 
 ```bash
-curl -sL https://raw.githubusercontent.com/orailnoor/DroidDesk/main/proot-xfce-setup.sh -o ~/proot-xfce-setup.sh
+curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/proot-xfce-setup.sh -o ~/proot-xfce-setup.sh
 chmod +x ~/proot-xfce-setup.sh
 bash ~/proot-xfce-setup.sh
 ```
