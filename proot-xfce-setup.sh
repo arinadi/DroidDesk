@@ -211,6 +211,27 @@ ln -sf ~/.shortcuts/kill-x11.sh ~/kill-x11.sh
 ln -sf ~/.shortcuts/kill-proot.sh ~/kill-proot.sh
 ln -sf ~/.shortcuts/update-droiddesk.sh ~/update-droiddesk.sh
 
+# --- Termux MOTD Update ---
+cat > /data/data/com.termux/files/usr/etc/motd << MOTDEOF
+
+==========================================
+ 📱 DroidDesk Proot XFCE (v8.0)
+==========================================
+
+ Start:
+   1. bash ~/start-x11.sh
+   2. Open Termux:X11 app
+   3. bash ~/start-xfce.sh  (in new tab)
+
+ Stop/Update:
+   bash ~/kill-proot.sh       (stop XFCE)
+   bash ~/kill-x11.sh         (stop Audio)
+   bash ~/update-droiddesk.sh (update)
+
+ User: ${PROOT_USER} / Pass: ${PROOT_PASS}
+==========================================
+MOTDEOF
+
 echo ""
 echo "=========================================="
 echo " SETUP COMPLETE (Widget Support, v8.0)"
