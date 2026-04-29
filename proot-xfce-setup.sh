@@ -92,11 +92,6 @@ cat > ~/start-x11.sh << 'EOF'
 TERMUX_TMP="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 PULSE_SOCK="${TERMUX_TMP}/pulse-socket"
 
-echo ">>> Cleaning up old sessions..."
-pkill -9 -f "termux-x11|pulseaudio" 2>/dev/null || true
-rm -f /tmp/.X0-lock "${TERMUX_TMP}/.X11-unix/X0" 2>/dev/null
-rm -f "$PULSE_SOCK" 2>/dev/null
-sleep 1
 
 # Start PulseAudio with Unix Socket for high fidelity and low latency
 echo ">>> Starting PulseAudio..."
@@ -129,10 +124,6 @@ BINDS=""
 
 echo ">>> Starting XFCE Desktop..."
 proot-distro login ${DISTRO} \$BINDS -- su - ${PROOT_USER} -c "
-    # Safe Cleanup
-    pkill -9 -f 'xfce4|dbus|thunar' 2>/dev/null || true
-    rm -rf /tmp/.X* /tmp/dbus-* /tmp/ssh-* 2>/dev/null
-    rm -rf ~/.cache/sessions/* 2>/dev/null
 
     # Export display
     export DISPLAY=:0
@@ -143,16 +134,64 @@ proot-distro login ${DISTRO} \$BINDS -- su - ${PROOT_USER} -c "
 "
 XFCEOF
 
-chmod +x ~/start-x11.sh ~/start-xfce.sh
+# --- Kill Script 1: Kill X11 & Audio (Termux Side) ---
+cat > ~/kill-x11.sh << 'KILLX11EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+echo ">>> Stopping X11 and PulseAudio..."
+pkill -9 -f "termux-x11" 2>/dev/null || true
+pkill -9 -f "pulseaudio" 2>/dev/null || true
+
+TERMUX_TMP="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+rm -f /tmp/.X0-lock 2>/dev/null
+rm -rf "${TERMUX_TMP}/.X11-unix" 2>/dev/null
+rm -f "${TERMUX_TMP}/pulse-socket" 2>/dev/null
+
+echo ">>> X11 and PulseAudio stopped."
+KILLX11EOF
+
+# --- Kill Script 2: Kill Proot/XFCE (Termux Side) ---
+# Double-quoted heredoc — $DISTRO is baked in at generation.
+cat > ~/kill-proot.sh << KILLPROOTEOF
+#!/data/data/com.termux/files/usr/bin/bash
+echo ">>> Stopping XFCE and proot sessions..."
+
+# Kill desktop processes (leaf first, then session managers)
+pkill -9 -f "thunar" 2>/dev/null || true
+pkill -9 -f "xfce4-panel" 2>/dev/null || true
+pkill -9 -f "xfce4-terminal" 2>/dev/null || true
+pkill -9 -f "xfwm4" 2>/dev/null || true
+pkill -9 -f "xfce4-session" 2>/dev/null || true
+pkill -9 -f "dbus-daemon" 2>/dev/null || true
+pkill -9 -f "proot-distro" 2>/dev/null || true
+pkill -9 -f "proot --" 2>/dev/null || true
+
+# Clean temp inside rootfs (preserves all config files)
+ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${DISTRO}"
+if [ -d "\$ROOTFS/tmp" ]; then
+    echo "  [*] Cleaning temp files..."
+    rm -rf "\$ROOTFS/tmp/.X"* 2>/dev/null
+    rm -rf "\$ROOTFS/tmp/dbus-"* 2>/dev/null
+    rm -rf "\$ROOTFS/tmp/ssh-"* 2>/dev/null
+    rm -f "\$ROOTFS/tmp/.dbus"* 2>/dev/null
+fi
+
+echo ">>> Proot sessions stopped, temp files cleaned."
+KILLPROOTEOF
+
+chmod +x ~/start-x11.sh ~/start-xfce.sh ~/kill-x11.sh ~/kill-proot.sh
 
 echo ""
 echo "=========================================="
-echo " SETUP COMPLETE (Audio Optimized, v6.0)"
+echo " SETUP COMPLETE (Audio Optimized, v7.0)"
 echo ""
-echo " Usage:"
+echo " Start:"
 echo "   1. bash ~/start-x11.sh"
 echo "   2. Open Termux:X11 app"
 echo "   3. bash ~/start-xfce.sh  (in new tab)"
+echo ""
+echo " Stop:"
+echo "   bash ~/kill-proot.sh   (stop XFCE/proot)"
+echo "   bash ~/kill-x11.sh     (stop X11/audio)"
 echo ""
 echo " User: ${PROOT_USER} / Pass: ${PROOT_PASS}"
 echo "=========================================="

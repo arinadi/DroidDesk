@@ -15,10 +15,10 @@ The original Termux-centered guide is preserved in `readme-termux.md`.
   - Kali Linux
 - Installs XFCE and basic GUI tooling inside the selected distro
 - Creates the following launcher scripts:
-  - `~/start-x11.sh` — start Termux:X11 server only
-  - `~/start-proot-xfce.sh` — start XFCE session inside the proot distro
-  - `~/start-proot.sh` — open a raw proot shell
-  - `~/stop-linux.sh` — stop running X11 / pulseaudio / dbus sessions
+  - `~/start-x11.sh` — start Termux:X11 and PulseAudio
+  - `~/start-xfce.sh` — start XFCE session inside the proot distro
+  - `~/kill-proot.sh` — kill all XFCE/proot processes and clean temp files
+  - `~/kill-x11.sh` — kill X11 and PulseAudio, clean sockets
 
 ## Requirements
 
@@ -60,39 +60,43 @@ This starts Termux:X11 on display `:1`.
 ### 2. Start XFCE inside the proot distro
 
 ```bash
-bash ~/start-proot-xfce.sh
+bash ~/start-xfce.sh
 ```
 
-This launches the XFCE session in the selected proot container using `DISPLAY=:1`.
+This launches the XFCE session in the selected proot container using `DISPLAY=:0`.
 
-### 3. Open a raw proot shell
+### 3. Stop XFCE / proot
 
 ```bash
-bash ~/start-proot.sh
+bash ~/kill-proot.sh
 ```
 
-Use this to install packages or manage the container.
+Kills all XFCE and proot processes, cleans temp files inside rootfs (preserves config).
 
-### 4. Stop sessions
+### 4. Stop X11 / audio
 
 ```bash
-bash ~/stop-linux.sh
+bash ~/kill-x11.sh
 ```
 
-Stops Termux:X11, VNC, PulseAudio, and dbus processes created by the workflow.
+Kills Termux:X11 and PulseAudio, removes socket and lock files.
 
 ## Recommended flow
 
+**Start:**
 1. `bash ~/start-x11.sh`
-2. `bash ~/start-proot-xfce.sh`
+2. Open Termux:X11 app
+3. `bash ~/start-xfce.sh` (in new Termux tab)
 
-This separates the display server from the desktop session and reduces startup ambiguity.
+**Stop:**
+1. `bash ~/kill-proot.sh`
+2. `bash ~/kill-x11.sh`
 
 ## Notes
 
-- `~/start-proot-xfce.sh` requires `~/start-x11.sh` to be running first.
-- The script uses `proot-distro --shared-tmp` so `/tmp` is shared between Termux and the container.
-- The container session uses `dbus-launch --exit-with-session xfce4-session`.
+- `~/start-xfce.sh` requires `~/start-x11.sh` to be running first.
+- Start scripts only start — they do not kill previous sessions. Run the kill scripts first if you need a clean restart.
+- The container session uses `dbus-run-session startxfce4`.
 - If the display is unstable, you may later add Termux:X11 flags such as `-legacy-drawing` or `-force-bgra`.
 
 ## Original Termux guide
