@@ -49,8 +49,8 @@ proot-distro login "$DISTRO" -- bash -c "
     apt-get install -y -q --no-install-recommends \
         sudo dbus-x11 \
         xfce4-session xfwm4 xfce4-panel xfce4-terminal \
-        xfce4-settings xfconf thunar \
-        fonts-noto pulseaudio-utils
+        xfce4-settings xfconf thunar xfdesktop4 \
+        fonts-noto pulseaudio-utils libgl1 mesa-utils
 
     # --- User Setup ---
     id ${PROOT_USER} &>/dev/null || useradd -m -s /bin/bash ${PROOT_USER}
@@ -125,9 +125,14 @@ BINDS=""
 echo ">>> Starting XFCE Desktop..."
 proot-distro login ${DISTRO} \$BINDS -- su - ${PROOT_USER} -c "
 
-    # Export display
+    # Export display and accessibility (suppress warnings)
     export DISPLAY=:0
-    export XDG_RUNTIME_DIR=/tmp
+    export NO_AT_BRIDGE=1
+
+    # Fix XDG_RUNTIME_DIR permission issue
+    export XDG_RUNTIME_DIR=/tmp/xdg-${PROOT_USER}
+    mkdir -p \$XDG_RUNTIME_DIR
+    chmod 700 \$XDG_RUNTIME_DIR
 
     # Start fresh session
     dbus-run-session startxfce4
@@ -168,14 +173,17 @@ pkill -9 -f "proot --" 2>/dev/null || true
 # Clean temp inside rootfs (preserves all config files)
 ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${DISTRO}"
 if [ -d "\$ROOTFS/tmp" ]; then
-    echo "  [*] Cleaning temp files..."
+    echo "  [*] Cleaning temp and session cache..."
     rm -rf "\$ROOTFS/tmp/.X"* 2>/dev/null
     rm -rf "\$ROOTFS/tmp/dbus-"* 2>/dev/null
     rm -rf "\$ROOTFS/tmp/ssh-"* 2>/dev/null
     rm -f "\$ROOTFS/tmp/.dbus"* 2>/dev/null
+    
+    # Clean corrupt XFCE sessions to ensure fresh start (does NOT delete user config)
+    rm -rf "\$ROOTFS/home/${PROOT_USER}/.cache/sessions/"* 2>/dev/null
 fi
 
-echo ">>> Proot sessions stopped, temp files cleaned."
+echo ">>> Proot sessions stopped, temp and cache cleaned."
 KILLPROOTEOF
 
 chmod +x ~/start-x11.sh ~/start-xfce.sh ~/kill-x11.sh ~/kill-proot.sh
