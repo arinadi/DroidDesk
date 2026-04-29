@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# proot-xfce-setup.sh v2.2
-# Install XFCE4 di Ubuntu 22.04 (proot-distro) via Termux-X11
+# proot-xfce-setup.sh v2.3
+# Install XFCE4 in Ubuntu 22.04 (proot-distro) via Termux-X11
 set -uo pipefail
 
 readonly PROOT_DISTRO="ubuntu"
@@ -18,98 +18,34 @@ TOTAL_STEPS=8
 CURRENT_STEP=0
 GPU_MODE="zink"
 
+# Colors for basic status
 R='\033[0;31m' G='\033[0;32m' Y='\033[1;33m'
 C='\033[0;36m' W='\033[1;37m' D='\033[0;90m'
 P='\033[0;35m' N='\033[0m'
 
-# ── Progress ───────────────────────────────────────────────
+# --- Progress ---
 progress() {
     CURRENT_STEP=$((CURRENT_STEP + 1))
-    local pct=$((CURRENT_STEP * 100 / TOTAL_STEPS))
-    local filled=$((pct / 5)) empty=$((20 - pct / 5)) bar="${G}" i
-    for ((i=0; i<filled; i++)); do bar+="█"; done
-    bar+="${D}"; for ((i=0; i<empty; i++)); do bar+="░"; done; bar+="${N}"
-    echo -e "\n${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}"
-    echo -e "${C}  STEP ${CURRENT_STEP}/${TOTAL_STEPS}  ${bar}  ${W}${pct}%${N}"
-    echo -e "${W}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
+    echo -e "\n${C}>>> [STEP ${CURRENT_STEP}/${TOTAL_STEPS}]${N}"
 }
 
-# ── Spinner ────────────────────────────────────────────────
-spinner() {
-    local pid=$1 msg=$2 sp='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏' i=0
-    while kill -0 "${pid}" 2>/dev/null; do
-        printf "\r  ${C}[%s]${N} %s " "${sp:$((i % ${#sp})):1}" "${msg}"
-        i=$((i+1)); sleep 0.1
-    done
-    wait "${pid}"; local rc=$?
-    [ $rc -eq 0 ] \
-        && printf "\r  ${G}[✓]${N} %-55s\n" "${msg}" \
-        || printf "\r  ${R}[✗]${N} %-55s ${R}(error ${rc})${N}\n" "${msg}"
-    return $rc
-}
-
-# ── Termux pkg install ─────────────────────────────────────
+# --- Termux pkg install ---
 tpkg() {
-    ("${TERMUX_BIN}/pkg" install -y "$1" >/dev/null 2>&1) &
-    spinner $! "[Termux] pkg install $1"
+    echo -e "${C}[Termux] Installing: $1${N}"
+    "${TERMUX_BIN}/pkg" install -y "$1"
 }
 
-# ── Ubuntu: jalankan perintah foreground, output tersembunyi ─
-# WAJIB foreground (bukan &) — apt tidak toleran lock paralel.
-# proot-distro login tidak mewarisi PATH Android, harus di-set eksplisit.
-ubuntu_run_quiet() {
-    proot-distro login "${PROOT_DISTRO}" -- \
-        env PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-        bash -c "$1" >/dev/null 2>&1
-}
-
-# ── Ubuntu: jalankan perintah foreground, output RAW ─────
+# --- Ubuntu: run command with RAW output ---
 ubuntu_run() {
     proot-distro login "${PROOT_DISTRO}" -- \
         env PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
         bash -c "$1"
 }
 
-# ── Ubuntu apt install — foreground + spinner via printf ──
-# apt dijalankan FOREGROUND (tidak di-background) untuk
-# menghindari dpkg lock conflict antar pemanggilan.
-# Spinner berjalan di subshell terpisah, bukan membungkus proses apt.
+# --- Ubuntu apt install RAW ---
 ubuntu_pkg() {
     local pkgs="$1" label="${2:-$1}"
-    # Tampilkan spinner di background, apt di foreground
-    local spin_pid
-    (
-        local sp='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏' i=0
-        while true; do
-            printf "\r  ${C}[%s]${N} [Ubuntu] apt install %-35s" \
-                "${sp:$((i % ${#sp})):1}" "${label}"
-            i=$((i+1)); sleep 0.1
-        done
-    ) &
-    spin_pid=$!
-
-    ubuntu_run_quiet "
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get install -y -q \
-            -o Dpkg::Options::='--force-confold' \
-            -o APT::Get::Assume-Yes=true \
-            ${pkgs}
-    "
-    local rc=$?
-    kill "${spin_pid}" 2>/dev/null; wait "${spin_pid}" 2>/dev/null
-
-    [ $rc -eq 0 ] \
-        && printf "\r  ${G}[✓]${N} [Ubuntu] apt install %-35s\n" "${label}" \
-        || printf "\r  ${R}[✗]${N} [Ubuntu] apt install %-35s ${R}(rc=${rc})${N}\n" "${label}"
-    return $rc
-}
-
-# ── Ubuntu apt install RAW — semua output ke terminal ─────
-# Pakai untuk langkah yang sering macet/error agar kelihatan
-ubuntu_pkg_verbose() {
-    local pkgs="$1" label="${2:-$1}"
-    echo -e "\n  ${Y}[Ubuntu] apt install ${label}:${N}"
-    echo -e "  ${D}──────────────────────────────────────────────────${N}"
+    echo -e "\n${C}[Ubuntu] Installing: ${label}${N}"
     ubuntu_run "
         export DEBIAN_FRONTEND=noninteractive
         apt-get install -y \
@@ -117,37 +53,26 @@ ubuntu_pkg_verbose() {
             -o APT::Get::Assume-Yes=true \
             ${pkgs}
     "
-    local rc=$?
-    echo -e "  ${D}──────────────────────────────────────────────────${N}"
-    [ $rc -eq 0 ] \
-        && echo -e "  ${G}[✓] ${label} OK${N}" \
-        || echo -e "  ${R}[✗] ${label} GAGAL (rc=${rc})${N}"
-    return $rc
 }
 
-# ══════════════════════════════════════════════════════════
-banner() {
-    clear
-    echo -e "${C}"
-    cat << 'EOF'
-  ╔════════════════════════════════════════════════════╗
-  ║   proot-xfce-setup.sh  v2.1                       ║
-  ║   Ubuntu 22.04  →  XFCE4  →  Termux-X11           ║
-  ╚════════════════════════════════════════════════════╝
-EOF
-    echo -e "${N}"
-    echo -e "  ${W}Distro :${N} Ubuntu 22.04 LTS"
-    echo -e "  ${W}User   :${N} ${ADMIN_USER}  (pass: ${ADMIN_PASS})"
+# --- Header ---
+header() {
+    echo -e "${C}===================================================="
+    echo "  proot-xfce-setup.sh v2.3"
+    echo "  Ubuntu 22.04 -> XFCE4 -> Termux-X11"
+    echo -e "====================================================${N}"
+    echo "  Distro : Ubuntu 22.04 LTS"
+    echo "  User   : ${ADMIN_USER} (pass: ${ADMIN_PASS})"
     echo ""
 }
 
-# ══════════════════════════════════════════════════════════
+# --- Detect GPU ---
 detect_device() {
-    echo -e "${P}[*] Mendeteksi GPU...${N}"
+    echo -e "${P}[*] Detecting GPU...${N}"
     local brand gpu_egl
-    brand=$(getprop ro.product.brand 2>/dev/null || echo "")
-    gpu_egl=$(getprop ro.hardware.egl 2>/dev/null || echo "")
-    echo -e "  Brand: ${W}${brand}${N}  EGL: ${D}${gpu_egl:-?}${N}"
+    brand=$(getprop ro.product.brand 2>/dev/null || echo "unknown")
+    gpu_egl=$(getprop ro.hardware.egl 2>/dev/null || echo "unknown")
+    echo "  Brand: ${brand}  EGL: ${gpu_egl}"
 
     local is_adreno=false
     [[ "${gpu_egl,,}" == *"adreno"* || "${gpu_egl,,}" == *"freedreno"* ]] && is_adreno=true
@@ -156,35 +81,34 @@ detect_device() {
 
     if [ "${is_adreno}" = "true" ]; then
         GPU_MODE="turnip"
-        echo -e "  GPU: ${G}Adreno → Turnip/Vulkan HW accel${N}\n"
+        echo -e "  GPU: ${G}Adreno detected -> Using Turnip/Vulkan HW accel${N}\n"
     else
-        echo -e "  GPU: ${Y}Non-Adreno → Zink/software fallback${N}\n"
+        echo -e "  GPU: ${Y}Non-Adreno -> Using Zink/software fallback${N}\n"
     fi
 }
 
-# ══════════════════════════════════════════════════════════
+# --- Confirmation ---
 confirm_start() {
-    echo -e "${Y}Yang akan diinstall:${N}"
-    echo    "  [Termux] termux-x11-nightly, proot-distro, pulseaudio, mesa-zink"
-    echo    "  [Ubuntu] XFCE4, Firefox, LibreOffice, GIMP, VLC, Python3, NodeJS"
-    echo    "  [User]   admin / admin (sudo NOPASSWD)"
-    echo    "  Estimasi: ~1.5-2 GB, 10-30 menit\n"
-    read -rp "  Lanjutkan? [Y/n]: " _ans
-    [[ "${_ans:-Y}" =~ ^[Nn]$ ]] && echo "Dibatalkan." && exit 0
+    echo -e "${Y}Components to be installed:${N}"
+    echo "  [Termux] termux-x11-nightly, proot-distro, pulseaudio, mesa-zink"
+    echo "  [Ubuntu] XFCE4, Firefox, LibreOffice, GIMP, VLC, Python3, NodeJS"
+    echo "  [User]   admin / admin (sudo NOPASSWD)"
+    echo "  Estimate: ~1.5-2 GB, 10-30 minutes"
+    echo ""
+    read -rp "  Continue? [Y/n]: " _ans
+    [[ "${_ans:-Y}" =~ ^[Nn]$ ]] && echo "Cancelled." && exit 0
     echo ""
 }
 
-# ══════════════════════════════════════════════════════════
-# STEP 1 — Paket Termux
-# ══════════════════════════════════════════════════════════
+# STEP 1: Termux Packages
 step1_termux_packages() {
     progress
-    echo -e "${P}[Step ${CURRENT_STEP}] Install paket Termux...${N}\n"
+    echo -e "${P}Installing Termux packages...${N}"
 
-    ("${TERMUX_BIN}/pkg" update -y >/dev/null 2>&1) & spinner $! "[Termux] pkg update"
+    "${TERMUX_BIN}/pkg" update -y
     tpkg "x11-repo"
     tpkg "tur-repo"
-    ("${TERMUX_BIN}/pkg" update -y >/dev/null 2>&1) & spinner $! "[Termux] pkg update (post-repo)"
+    "${TERMUX_BIN}/pkg" update -y
     tpkg "termux-x11-nightly"
     tpkg "xorg-xrandr"
     tpkg "proot-distro"
@@ -194,44 +118,38 @@ step1_termux_packages() {
     [ "${GPU_MODE}" = "turnip" ] && tpkg "mesa-vulkan-icd-freedreno"
     tpkg "vulkan-loader-android"
     tpkg "imagemagick"
-    echo ""
 }
 
-# ══════════════════════════════════════════════════════════
-# STEP 2 — Install rootfs Ubuntu 22.04
-# ══════════════════════════════════════════════════════════
+# STEP 2: Install Ubuntu 22.04 Rootfs
 step2_install_ubuntu() {
     progress
-    echo -e "${P}[Step ${CURRENT_STEP}] Install Ubuntu 22.04 rootfs...${N}\n"
+    echo -e "${P}Installing Ubuntu 22.04 rootfs...${N}"
 
     if [ -f "${PROOT_ROOTFS}/bin/bash" ]; then
-        echo -e "  ${Y}[!] Ubuntu sudah ada, melewati download.${N}\n"
+        echo -e "${Y}[!] Ubuntu rootfs already exists, skipping download.${N}"
         return 0
     fi
-    echo -e "  ${D}Download ~400MB...${N}\n"
-    (proot-distro install "${PROOT_DISTRO}" >/dev/null 2>&1) &
-    spinner $! "[Ubuntu] Download & extract rootfs"
+    echo "Downloading ~400MB rootfs..."
+    proot-distro install "${PROOT_DISTRO}"
 
-    [ ! -f "${PROOT_ROOTFS}/bin/bash" ] && \
-        echo -e "\n  ${R}[✗] GAGAL: rootfs tidak terbentuk. Cek koneksi.${N}" && exit 1
-    echo -e "  ${G}[✓] Ubuntu rootfs siap.${N}\n"
+    if [ ! -f "${PROOT_ROOTFS}/bin/bash" ]; then
+        echo -e "\n${R}[X] ERROR: rootfs creation failed. Check connection.${N}"
+        exit 1
+    fi
+    echo -e "${G}[V] Ubuntu rootfs ready.${N}"
 }
 
-# ══════════════════════════════════════════════════════════
-# STEP 3 — Update Ubuntu & dependensi dasar
-# ══════════════════════════════════════════════════════════
+# STEP 3: Update Ubuntu & Base Dependencies
 step3_ubuntu_base() {
     progress
-    echo -e "${P}[Step ${CURRENT_STEP}] Update Ubuntu & install base deps...${N}\n"
+    echo -e "${P}Updating Ubuntu & installing base dependencies...${N}"
 
-    # Update foreground — dpkg lock tidak boleh ada proses lain saat ini
-    echo -e "  ${C}[*]${N} apt update & upgrade (bisa beberapa menit)..."
+    echo "[*] apt update & upgrade..."
     ubuntu_run "
         export DEBIAN_FRONTEND=noninteractive
-        apt-get update -q 2>&1 | tail -3
-        apt-get upgrade -y -q -o Dpkg::Options::='--force-confold' 2>&1 | tail -3
+        apt-get update
+        apt-get upgrade -y -o Dpkg::Options::='--force-confold'
     "
-    echo -e "  ${G}[✓]${N} apt update & upgrade\n"
 
     ubuntu_pkg "sudo" "sudo"
     ubuntu_pkg "curl wget git nano htop unzip ca-certificates" "system utils"
@@ -241,16 +159,13 @@ step3_ubuntu_base() {
     ubuntu_pkg "libgl1 libgles2 libvulkan1 mesa-utils" "Mesa stubs"
     ubuntu_pkg "pulseaudio-utils" "PulseAudio client"
     ubuntu_pkg "fonts-noto fonts-noto-color-emoji fonts-liberation" "fonts"
-    echo ""
 }
 
-# ══════════════════════════════════════════════════════════
-# STEP 4 — Install XFCE4
-# ══════════════════════════════════════════════════════════
+# STEP 4: Install XFCE4 & Applications
 step4_ubuntu_xfce() {
     progress
-    echo -e "${P}[Step ${CURRENT_STEP}] Install XFCE4...${N}"
-    echo -e "  ${Y}⚠  Proses terlama (~1GB). Harap tunggu...${N}\n"
+    echo -e "${P}Installing XFCE4 & Applications...${N}"
+    echo -e "${Y}This is the longest step (~1GB). Please wait...${N}"
 
     ubuntu_pkg \
         "xfce4 xfce4-terminal xfce4-whiskermenu-plugin
@@ -271,27 +186,23 @@ step4_ubuntu_xfce() {
 
     ubuntu_pkg \
         "python3 python3-pip python3-venv nodejs npm build-essential git" \
-        "Python3, Node.js, build tools"
-
-    echo ""
+        "Development tools"
 }
 
-# ══════════════════════════════════════════════════════════
-# STEP 5 — Buat user admin
-# ══════════════════════════════════════════════════════════
+# STEP 5: Create Admin User
 step5_create_admin() {
     progress
-    echo -e "${P}[Step ${CURRENT_STEP}] Buat user '${ADMIN_USER}'...${N}\n"
+    echo -e "${P}Creating user '${ADMIN_USER}'...${N}"
 
     ubuntu_run "
-        DEBIAN_FRONTEND=noninteractive
+        export DEBIAN_FRONTEND=noninteractive
         apt-get install -y -q sudo >/dev/null 2>&1
 
         if id '${ADMIN_USER}' >/dev/null 2>&1; then
-            echo '[skip] User sudah ada'
+            echo 'User already exists'
         else
             useradd -m -s /bin/bash -c 'Administrator' '${ADMIN_USER}'
-            echo '[✓] User dibuat'
+            echo 'User created'
         fi
 
         echo '${ADMIN_USER}:${ADMIN_PASS}' | chpasswd
@@ -322,17 +233,14 @@ alias install='sudo apt install -y'
 [ -f ~/.gpu-env.sh ] && source ~/.gpu-env.sh
 BASH_EOF
         chown '${ADMIN_USER}:${ADMIN_USER}' '/home/${ADMIN_USER}/.bashrc'
-        id '${ADMIN_USER}'
     "
-    echo -e "\n  ${G}[✓] User admin siap — sudo NOPASSWD${N}\n"
+    echo -e "${G}[V] Admin user ready (sudo NOPASSWD)${N}"
 }
 
-# ══════════════════════════════════════════════════════════
-# STEP 6 — XFCE4 theme config
-# ══════════════════════════════════════════════════════════
+# STEP 6: XFCE4 Theme Configuration
 step6_xfce_theme() {
     progress
-    echo -e "${P}[Step ${CURRENT_STEP}] Konfigurasi XFCE4 theme...${N}\n"
+    echo -e "${P}Configuring XFCE4 theme...${N}"
 
     mkdir -p \
         "${PROOT_HOME}/.config/xfce4/xfconf/xfce-perchannel-xml" \
@@ -427,24 +335,23 @@ EOF
     done
 
     local wp_dst="${PROOT_HOME}/Pictures/wallpaper.jpg"
-    command -v convert >/dev/null 2>&1 && \
-        (convert -size 1920x1080 gradient:"#1a1b2e"-"#16213e" "${wp_dst}" 2>/dev/null) &
-        spinner $! "Generate wallpaper"
+    if command -v convert >/dev/null 2>&1; then
+        echo "Generating wallpaper..."
+        convert -size 1920x1080 gradient:"#1a1b2e"-"#16213e" "${wp_dst}" 2>/dev/null || true
+    fi
 
-    ubuntu_run_quiet "chown -R ${ADMIN_USER}:${ADMIN_USER} /home/${ADMIN_USER}" || true
-    echo -e "  ${G}[✓] XFCE4 theme: Adwaita-dark + Dracula terminal${N}\n"
+    ubuntu_run "chown -R ${ADMIN_USER}:${ADMIN_USER} /home/${ADMIN_USER}" || true
+    echo -e "${G}[V] XFCE4 theme configured: Adwaita-dark + Dracula terminal${N}"
 }
 
-# ══════════════════════════════════════════════════════════
-# STEP 7 — GPU env script
-# ══════════════════════════════════════════════════════════
+# STEP 7: GPU Environment Script
 step7_gpu_env() {
     progress
-    echo -e "${P}[Step ${CURRENT_STEP}] Setup GPU env...${N}\n"
+    echo -e "${P}Setting up GPU environment...${N}"
 
     cat > "${PROOT_HOME}/.gpu-env.sh" << GPUEOF
 #!/bin/bash
-# ~/.gpu-env.sh — GPU environment untuk XFCE4
+# ~/.gpu-env.sh — GPU environment for XFCE4
 
 export MESA_NO_ERROR=1
 export MESA_GL_VERSION_OVERRIDE=4.6
@@ -467,41 +374,36 @@ export XDG_DATA_DIRS=/usr/share:/usr/local/share
 GPUEOF
 
     chmod +x "${PROOT_HOME}/.gpu-env.sh"
-    ubuntu_run_quiet "chown ${ADMIN_USER}:${ADMIN_USER} /home/${ADMIN_USER}/.gpu-env.sh" || true
-    echo -e "  ${G}[✓] ~/.gpu-env.sh — mode: ${GPU_MODE}${N}\n"
+    ubuntu_run "chown ${ADMIN_USER}:${ADMIN_USER} /home/${ADMIN_USER}/.gpu-env.sh" || true
+    echo -e "${G}[V] ~/.gpu-env.sh ready — mode: ${GPU_MODE}${N}"
 }
 
-# ══════════════════════════════════════════════════════════
-# STEP 8 — Buat launcher scripts
-# ══════════════════════════════════════════════════════════
+# STEP 8: Create Launcher Scripts
 step8_launchers() {
     progress
-    echo -e "${P}[Step ${CURRENT_STEP}] Membuat launcher scripts...${N}\n"
+    echo -e "${P}Creating launcher scripts...${N}"
 
-    # ── start-x11.sh — STEP 1: jalankan di Termux ────────
-    # Tugasnya: start pulseaudio + termux-x11, lalu tunggu.
-    # User harus buka app Termux:X11 di Android setelah ini.
-    # Jalankan di sesi Termux PERTAMA (tab/window terpisah).
+    # --- start-x11.sh ---
     {
         cat << 'HDR'
 #!/data/data/com.termux/files/usr/bin/bash
 # start-x11.sh — STEP 1: Start Termux-X11 & PulseAudio
-# Jalankan di tab/sesi Termux TERPISAH dari start-xfce.sh
-# Setelah running, buka app Termux:X11 di Android.
+# Run this in a SEPARATE Termux session from start-xfce.sh
+# After running, open the Termux:X11 app on Android.
 HDR
         cat << VARS
 TERMUX_TMP="\${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 VARS
         cat << 'BODY'
 
-echo "  [*] Membersihkan sesi lama..."
+echo "[*] Cleaning up old sessions..."
 pkill -9 -f "com.termux.x11" 2>/dev/null
 pkill -9 -f "termux-x11"     2>/dev/null
 pkill -9 -f "pulseaudio"     2>/dev/null
 rm -f /tmp/.X0-lock "${TERMUX_TMP}/.X11-unix/X0" 2>/dev/null
 sleep 0.5
 
-echo "  [*] Starting PulseAudio (Termux)..."
+echo "[*] Starting PulseAudio (Termux)..."
 unset PULSE_SERVER
 pulseaudio --kill 2>/dev/null; sleep 0.3
 pulseaudio --start --exit-idle-time=-1 --daemonize=true \
@@ -509,9 +411,9 @@ pulseaudio --start --exit-idle-time=-1 --daemonize=true \
 sleep 1
 pactl load-module module-native-protocol-tcp \
     auth-ip-acl=127.0.0.1 auth-anonymous=1 2>/dev/null || true
-echo "  [✓] PulseAudio ready (TCP 127.0.0.1)"
+echo "[V] PulseAudio ready (TCP 127.0.0.1)"
 
-echo "  [*] Starting Termux-X11 display :0 ..."
+echo "[*] Starting Termux-X11 display :0 ..."
 termux-x11 :0 -ac &
 X11_PID=$!
 sleep 2
@@ -519,36 +421,35 @@ sleep 2
 X11_SOCK="${TERMUX_TMP}/.X11-unix"
 if [ ! -S "${X11_SOCK}/X0" ]; then
     echo ""
-    echo "  [!] ERROR: socket X11 tidak muncul: ${X11_SOCK}/X0"
-    echo "      Pastikan app Termux:X11 sudah diinstall di Android."
-    echo "      Coba jalankan ulang setelah membuka app Termux:X11."
+    echo "[!] ERROR: X11 socket not found: ${X11_SOCK}/X0"
+    echo "    Make sure the Termux:X11 app is installed on Android."
+    echo "    Try running again after opening the Termux:X11 app."
     kill $X11_PID 2>/dev/null
     exit 1
 fi
 
-echo "  [✓] Termux-X11 running — socket: ${X11_SOCK}/X0"
+echo "[V] Termux-X11 running — socket: ${X11_SOCK}/X0"
 echo ""
-echo "  ════════════════════════════════════════════════"
-echo "   X11 & Audio siap!"
-echo "   → Buka app Termux:X11 di Android"
-echo "   → Di tab Termux LAIN, jalankan: bash ~/start-xfce.sh"
-echo "  ════════════════════════════════════════════════"
+echo "===================================================="
+echo " X11 & Audio Ready!"
+echo " -> Open Termux:X11 app on Android"
+echo " -> In ANOTHER Termux tab, run: bash ~/start-xfce.sh"
+echo "===================================================="
 echo ""
 
-# Tunggu termux-x11 (jangan exit — socket hilang kalau process mati)
+# Wait for termux-x11
 wait $X11_PID
 BODY
     } > ~/start-x11.sh
     chmod +x ~/start-x11.sh
-    echo -e "  ${G}[✓] ~/start-x11.sh${N}  ← STEP 1: jalankan duluan, tab terpisah"
+    echo "  [V] ~/start-x11.sh created"
 
-    # ── start-xfce.sh — STEP 2: masuk Ubuntu → startxfce4 ─
-    # Jalankan SETELAH start-x11.sh running dan X11 socket ada.
+    # --- start-xfce.sh ---
     {
         cat << 'HDR'
 #!/data/data/com.termux/files/usr/bin/bash
-# start-xfce.sh — STEP 2: Masuk Ubuntu proot → startxfce4
-# Prasyarat: start-x11.sh sudah running di tab lain
+# start-xfce.sh — STEP 2: Enter Ubuntu proot -> startxfce4
+# Prerequisite: start-x11.sh is already running in another tab
 HDR
         cat << VARS
 PROOT_DISTRO="${PROOT_DISTRO}"
@@ -559,28 +460,28 @@ TERMUX_LIB="/data/data/com.termux/files/usr/lib"
 VARS
         cat << 'BODY'
 
-# Cek socket X11 dulu — kalau belum ada, minta user jalankan start-x11.sh
+# Check X11 socket
 X11_SOCK="${TERMUX_TMP}/.X11-unix"
 if [ ! -S "${X11_SOCK}/X0" ]; then
     echo ""
-    echo "  [!] Socket X11 tidak ditemukan: ${X11_SOCK}/X0"
+    echo "[!] X11 socket not found: ${X11_SOCK}/X0"
     echo ""
-    echo "  Jalankan dulu di tab Termux LAIN:"
-    echo "    bash ~/start-x11.sh"
+    echo "Please run this in ANOTHER Termux tab first:"
+    echo "  bash ~/start-x11.sh"
     echo ""
-    echo "  Setelah 'X11 & Audio siap!' muncul, buka app Termux:X11"
-    echo "  di Android, lalu jalankan script ini lagi."
+    echo "Once 'X11 & Audio Ready!' appears, open Termux:X11"
+    echo "app on Android, then run this script again."
     echo ""
     exit 1
 fi
-echo "  [✓] X11 socket ditemukan"
+echo "[V] X11 socket found"
 
-# Matikan sesi XFCE lama jika ada
+# Kill old sessions
 pkill -9 -f "xfce4-session" 2>/dev/null
 pkill -9 -f "dbus-daemon"   2>/dev/null
 sleep 0.3
 
-# Susun bind mounts
+# Bind mounts
 BINDS="--bind ${X11_SOCK}:/tmp/.X11-unix"
 [ -d "/dev/dri" ]                   && BINDS="${BINDS} --bind /dev/dri:/dev/dri"
 [ -e "/dev/kgsl-3d0" ]              && BINDS="${BINDS} --bind /dev/kgsl-3d0:/dev/kgsl-3d0"
@@ -589,7 +490,7 @@ BINDS="--bind ${X11_SOCK}:/tmp/.X11-unix"
 [ -f "${TERMUX_LIB}/libvulkan.so" ] && \
     BINDS="${BINDS} --bind ${TERMUX_LIB}/libvulkan.so:/usr/lib/aarch64-linux-gnu/libvulkan_termux.so"
 
-echo "  [*] Masuk Ubuntu → login sebagai ${ADMIN_USER} → startxfce4"
+echo "[*] Entering Ubuntu -> Logging in as ${ADMIN_USER} -> Starting XFCE4"
 echo ""
 
 proot-distro login "${PROOT_DISTRO}" \
@@ -598,13 +499,12 @@ proot-distro login "${PROOT_DISTRO}" \
     --env XDG_RUNTIME_DIR=/tmp \
     ${BINDS} \
     -- bash -c '
-        # Set PATH eksplisit — proot tidak inherit PATH Android
         export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
         chmod 1777 /tmp 2>/dev/null || true
         mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix 2>/dev/null || true
 
         if [ ! -S /tmp/.X11-unix/X0 ]; then
-            echo "[!] Bind X11 socket gagal di dalam Ubuntu"; exit 1
+            echo "[!] X11 socket bind failed inside Ubuntu"; exit 1
         fi
 
         su - '"${ADMIN_USER}"' -c "
@@ -620,24 +520,21 @@ proot-distro login "${PROOT_DISTRO}" \
 EXIT_CODE=$?
 echo ""
 [ ${EXIT_CODE} -eq 0 ] \
-    && echo "  [✓] Sesi XFCE4 berakhir normal." \
-    || echo "  [!] XFCE4 keluar (rc=${EXIT_CODE})"
-echo "  Log audio: ${TERMUX_TMP}/pulseaudio.log"
+    && echo "[V] XFCE4 session ended normally." \
+    || echo "[!] XFCE4 exited (rc=${EXIT_CODE})"
+echo "Audio log: ${TERMUX_TMP}/pulseaudio.log"
 echo ""
-echo "  Troubleshooting:"
-echo "  • Layar hitam  → edit start-x11.sh: termux-x11 :0 -legacy-drawing -ac"
-echo "  • Warna balik  → edit start-x11.sh: termux-x11 :0 -force-bgra -ac"
 BODY
     } > ~/start-xfce.sh
     chmod +x ~/start-xfce.sh
-    echo -e "  ${G}[✓] ~/start-xfce.sh${N}  ← STEP 2: jalankan setelah start-x11.sh"
+    echo "  [V] ~/start-xfce.sh created"
 
-    # ── shell-ubuntu.sh ───────────────────────────────────
+    # --- shell-ubuntu.sh ---
     {
         cat << 'HDR'
 #!/data/data/com.termux/files/usr/bin/bash
-# shell-ubuntu.sh — Masuk shell Ubuntu sebagai admin
-# Untuk: apt install, konfigurasi, troubleshoot
+# shell-ubuntu.sh — Enter Ubuntu shell as admin
+# Use for: apt install, configuration, troubleshooting
 HDR
         cat << VARS
 PROOT_DISTRO="${PROOT_DISTRO}"
@@ -659,65 +556,56 @@ proot-distro login "${PROOT_DISTRO}" ${BINDS} -- \
 BODY
     } > ~/shell-ubuntu.sh
     chmod +x ~/shell-ubuntu.sh
-    echo -e "  ${G}[✓] ~/shell-ubuntu.sh${N}"
+    echo "  [V] ~/shell-ubuntu.sh created"
 
-    # ── stop-xfce.sh ──────────────────────────────────────
+    # --- stop-xfce.sh ---
     cat > ~/stop-xfce.sh << 'STOP'
 #!/data/data/com.termux/files/usr/bin/bash
-# stop-xfce.sh — Hentikan semua sesi
-echo "  [*] Stopping..."
+# stop-xfce.sh — Stop all sessions
+echo "[*] Stopping..."
 pkill -9 -f "com.termux.x11" 2>/dev/null; pkill -9 -f "termux-x11" 2>/dev/null
 pkill -9 -f "pulseaudio"     2>/dev/null; pkill -9 -f "xfce4-session" 2>/dev/null
 pkill -9 -f "xfwm4"          2>/dev/null; pkill -9 -f "dbus-daemon" 2>/dev/null
 rm -f /tmp/.X0-lock 2>/dev/null
-echo "  [✓] Selesai."
+echo "[V] Done."
 STOP
     chmod +x ~/stop-xfce.sh
-    echo -e "  ${G}[✓] ~/stop-xfce.sh${N}\n"
+    echo "  [V] ~/stop-xfce.sh created"
 }
 
-# ══════════════════════════════════════════════════════════
+# --- Final message ---
 show_done() {
-    echo -e "\n${G}"
-    cat << 'EOF'
-  ╔════════════════════════════════════════════════════╗
-  ║      ✓  INSTALASI SELESAI!                        ║
-  ╚════════════════════════════════════════════════════╝
-EOF
-    echo -e "${N}"
-    echo -e "  ${W}User :${N} ${ADMIN_USER} / ${ADMIN_PASS}  (sudo NOPASSWD)"
-    echo -e "  ${W}GPU  :${N} ${GPU_MODE}"
+    echo -e "\n${G}===================================================="
+    echo "      INSTALLATION COMPLETE!"
+    echo -e "====================================================${N}"
+    echo "  User : ${ADMIN_USER} / ${ADMIN_PASS} (sudo NOPASSWD)"
+    echo "  GPU  : ${GPU_MODE}"
     echo ""
-    echo -e "  ${Y}══ CARA PAKAI ════════════════════════════════════${N}"
+    echo -e "${Y}USAGE INSTRUCTIONS:${N}"
     echo ""
-    echo -e "  ${G}1. Jalankan di tab Termux PERTAMA:${N}"
-    echo -e "     ${W}bash ~/start-x11.sh${N}"
-    echo -e "     ${D}→ Tunggu hingga 'X11 & Audio siap!' muncul${N}"
-    echo -e "     ${D}→ Buka app Termux:X11 di Android${N}"
+    echo -e "${G}1. In FIRST Termux tab:${N}"
+    echo "   bash ~/start-x11.sh"
+    echo "   -> Wait for 'X11 & Audio Ready!'"
+    echo "   -> Open Termux:X11 app on Android"
     echo ""
-    echo -e "  ${G}2. Jalankan di tab Termux KEDUA:${N}"
-    echo -e "     ${W}bash ~/start-xfce.sh${N}"
-    echo -e "     ${D}→ Desktop XFCE4 muncul di Termux:X11${N}"
+    echo -e "${G}2. In SECOND Termux tab:${N}"
+    echo "   bash ~/start-xfce.sh"
+    echo "   -> XFCE4 desktop will appear in Termux:X11 app"
     echo ""
-    echo -e "  ${G}3. Shell Ubuntu (install app):${N}"
-    echo -e "     ${W}bash ~/shell-ubuntu.sh${N}"
+    echo -e "${G}3. Ubuntu Shell (to install apps):${N}"
+    echo "   bash ~/shell-ubuntu.sh"
     echo ""
-    echo -e "  ${G}4. Stop semua:${N}"
-    echo -e "     ${W}bash ~/stop-xfce.sh${N}"
-    echo ""
-    echo -e "  ${Y}Troubleshooting:${N}"
-    echo    "  • Layar hitam  → di start-x11.sh: termux-x11 :0 -legacy-drawing -ac"
-    echo    "  • Warna balik  → di start-x11.sh: termux-x11 :0 -force-bgra -ac"
-    echo    "  • dbus crash   → bash ~/shell-ubuntu.sh → sudo apt install dbus dbus-x11"
+    echo -e "${G}4. Stop everything:${N}"
+    echo "   bash ~/stop-xfce.sh"
     echo ""
 }
 
-# ══════════════════════════════════════════════════════════
+# --- Main ---
 main() {
     [ ! -d "/data/data/com.termux" ] || [ ! -x "${TERMUX_PREFIX}/bin/bash" ] && \
-        echo "Error: Jalankan di dalam Termux!" && exit 1
+        echo "Error: Please run this inside Termux!" && exit 1
 
-    banner
+    header
     detect_device
     confirm_start
     step1_termux_packages
