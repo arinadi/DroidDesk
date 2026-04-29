@@ -18,14 +18,16 @@ bash ~/proot-xfce-setup.sh
 > [!NOTE]
 > This script installs XFCE inside an Ubuntu proot and creates separate start scripts for Termux:X11 and the proot session.
 
-## 🧐 Why Proot? (Termux vs Ubuntu)
+## 🧐 Why Ubuntu Proot?
 
 While you can install XFCE natively in Termux, running the **entire desktop inside a proot Ubuntu environment** offers a much smoother "daily-driver" experience:
 
 - 📦 **Standard `glibc` binaries:** Termux uses `bionic` (Android's libc), which breaks many standard Linux apps. Ubuntu proot uses standard `glibc`, ensuring maximum compatibility.
 - 🔗 **Seamless App Integration:** While you *could* run native Termux XFCE and sync proot apps to the menu, setting them as default apps is extremely difficult because the binaries aren't natively in the Termux directory. By putting the *entire* XFCE desktop inside Ubuntu, setting apps like `firefox-esr` as your default browser "Just Works".
 - 🛡️ **Better App Stability:** Apps run exactly as they would on a standard desktop without complex cross-environment workarounds. For example, Firefox ESR handles complex JavaScript and Google logins perfectly inside proot.
-- 📚 **Standard Repositories:** You get access to the full `apt` repository of Ubuntu/Debian instead of just the limited Termux packages.
+- 🐧 **Why specifically Ubuntu?**
+  - **Debian** is incredibly stable, but Ubuntu provides far superior out-of-the-box binary support and PPA availability for ARM64 architectures (especially for proprietary apps and newer packages).
+  - **Fedora** is excellent on desktop (my personal daily driver!), but its ARM ports within proot environments currently feel less mature and have more friction compared to Ubuntu.
 
 ## 🛠️ What this script does
 
