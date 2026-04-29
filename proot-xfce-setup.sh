@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# proot-xfce-setup.sh v2.1
+# proot-xfce-setup.sh v2.2
 # Install XFCE4 di Ubuntu 22.04 (proot-distro) via Termux-X11
 set -uo pipefail
 
@@ -54,41 +54,67 @@ tpkg() {
     spinner $! "[Termux] pkg install $1"
 }
 
-# ── Ubuntu: jalankan perintah (output tersembunyi) ─────────
+# ── Ubuntu: jalankan perintah foreground, output tersembunyi ─
+# WAJIB foreground (bukan &) — apt tidak toleran lock paralel.
+# proot-distro login tidak mewarisi PATH Android, harus di-set eksplisit.
 ubuntu_run_quiet() {
-    proot-distro login "${PROOT_DISTRO}" -- bash -c "$1" >/dev/null 2>&1
+    proot-distro login "${PROOT_DISTRO}" -- \
+        env PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+        bash -c "$1" >/dev/null 2>&1
 }
 
-# ── Ubuntu: jalankan perintah (output RAW ke terminal) ────
-# Dipakai saat debug / langkah yang sering stuck
+# ── Ubuntu: jalankan perintah foreground, output RAW ─────
 ubuntu_run() {
-    proot-distro login "${PROOT_DISTRO}" -- bash -c "$1"
+    proot-distro login "${PROOT_DISTRO}" -- \
+        env PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+        bash -c "$1"
 }
 
-# ── Ubuntu apt install (quiet + spinner) ──────────────────
+# ── Ubuntu apt install — foreground + spinner via printf ──
+# apt dijalankan FOREGROUND (tidak di-background) untuk
+# menghindari dpkg lock conflict antar pemanggilan.
+# Spinner berjalan di subshell terpisah, bukan membungkus proses apt.
 ubuntu_pkg() {
     local pkgs="$1" label="${2:-$1}"
-    (ubuntu_run_quiet "
-        DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
+    # Tampilkan spinner di background, apt di foreground
+    local spin_pid
+    (
+        local sp='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏' i=0
+        while true; do
+            printf "\r  ${C}[%s]${N} [Ubuntu] apt install %-35s" \
+                "${sp:$((i % ${#sp})):1}" "${label}"
+            i=$((i+1)); sleep 0.1
+        done
+    ) &
+    spin_pid=$!
+
+    ubuntu_run_quiet "
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get install -y -q \
             -o Dpkg::Options::='--force-confold' \
             -o APT::Get::Assume-Yes=true \
             ${pkgs}
-    ") &
-    spinner $! "[Ubuntu] apt install ${label}"
+    "
+    local rc=$?
+    kill "${spin_pid}" 2>/dev/null; wait "${spin_pid}" 2>/dev/null
+
+    [ $rc -eq 0 ] \
+        && printf "\r  ${G}[✓]${N} [Ubuntu] apt install %-35s\n" "${label}" \
+        || printf "\r  ${R}[✗]${N} [Ubuntu] apt install %-35s ${R}(rc=${rc})${N}\n" "${label}"
+    return $rc
 }
 
-# ── Ubuntu apt install RAW (output langsung ke terminal) ──
-# Pakai ini untuk paket yang diketahui lambat/macet agar
-# progress apt terlihat dan error tidak tersembunyi
+# ── Ubuntu apt install RAW — semua output ke terminal ─────
+# Pakai untuk langkah yang sering macet/error agar kelihatan
 ubuntu_pkg_verbose() {
     local pkgs="$1" label="${2:-$1}"
-    echo -e "  ${Y}[Ubuntu] apt install ${label} — output RAW:${N}"
+    echo -e "\n  ${Y}[Ubuntu] apt install ${label}:${N}"
     echo -e "  ${D}──────────────────────────────────────────────────${N}"
     ubuntu_run "
-        DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get install -y \
             -o Dpkg::Options::='--force-confold' \
             -o APT::Get::Assume-Yes=true \
-            --no-install-recommends \
             ${pkgs}
     "
     local rc=$?
@@ -198,11 +224,14 @@ step3_ubuntu_base() {
     progress
     echo -e "${P}[Step ${CURRENT_STEP}] Update Ubuntu & install base deps...${N}\n"
 
-    (ubuntu_run_quiet "
-        DEBIAN_FRONTEND=noninteractive
-        apt-get update -y -q
-        apt-get upgrade -y -q -o Dpkg::Options::='--force-confold'
-    ") & spinner $! "[Ubuntu] apt update & upgrade"
+    # Update foreground — dpkg lock tidak boleh ada proses lain saat ini
+    echo -e "  ${C}[*]${N} apt update & upgrade (bisa beberapa menit)..."
+    ubuntu_run "
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -q 2>&1 | tail -3
+        apt-get upgrade -y -q -o Dpkg::Options::='--force-confold' 2>&1 | tail -3
+    "
+    echo -e "  ${G}[✓]${N} apt update & upgrade\n"
 
     ubuntu_pkg "sudo" "sudo"
     ubuntu_pkg "curl wget git nano htop unzip ca-certificates" "system utils"
@@ -211,12 +240,7 @@ step3_ubuntu_base() {
     ubuntu_pkg "libx11-6 libxext6 libxrender1 libxrandr2 libxi6" "X11 libs"
     ubuntu_pkg "libgl1 libgles2 libvulkan1 mesa-utils" "Mesa stubs"
     ubuntu_pkg "pulseaudio-utils" "PulseAudio client"
-
-    # Font: RAW output karena sering stuck/lambat — error langsung kelihatan
-    ubuntu_pkg_verbose \
-        "fonts-noto fonts-noto-color-emoji fonts-liberation" \
-        "fonts (noto + emoji)"
-
+    ubuntu_pkg "fonts-noto fonts-noto-color-emoji fonts-liberation" "fonts"
     echo ""
 }
 
@@ -454,11 +478,77 @@ step8_launchers() {
     progress
     echo -e "${P}[Step ${CURRENT_STEP}] Membuat launcher scripts...${N}\n"
 
-    # ── start-xfce.sh ─────────────────────────────────────
+    # ── start-x11.sh — STEP 1: jalankan di Termux ────────
+    # Tugasnya: start pulseaudio + termux-x11, lalu tunggu.
+    # User harus buka app Termux:X11 di Android setelah ini.
+    # Jalankan di sesi Termux PERTAMA (tab/window terpisah).
     {
         cat << 'HDR'
 #!/data/data/com.termux/files/usr/bin/bash
-# start-xfce.sh — Jalankan XFCE4 Ubuntu via Termux-X11
+# start-x11.sh — STEP 1: Start Termux-X11 & PulseAudio
+# Jalankan di tab/sesi Termux TERPISAH dari start-xfce.sh
+# Setelah running, buka app Termux:X11 di Android.
+HDR
+        cat << VARS
+TERMUX_TMP="\${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+VARS
+        cat << 'BODY'
+
+echo "  [*] Membersihkan sesi lama..."
+pkill -9 -f "com.termux.x11" 2>/dev/null
+pkill -9 -f "termux-x11"     2>/dev/null
+pkill -9 -f "pulseaudio"     2>/dev/null
+rm -f /tmp/.X0-lock "${TERMUX_TMP}/.X11-unix/X0" 2>/dev/null
+sleep 0.5
+
+echo "  [*] Starting PulseAudio (Termux)..."
+unset PULSE_SERVER
+pulseaudio --kill 2>/dev/null; sleep 0.3
+pulseaudio --start --exit-idle-time=-1 --daemonize=true \
+    --log-target="file:${TERMUX_TMP}/pulseaudio.log" 2>/dev/null
+sleep 1
+pactl load-module module-native-protocol-tcp \
+    auth-ip-acl=127.0.0.1 auth-anonymous=1 2>/dev/null || true
+echo "  [✓] PulseAudio ready (TCP 127.0.0.1)"
+
+echo "  [*] Starting Termux-X11 display :0 ..."
+termux-x11 :0 -ac &
+X11_PID=$!
+sleep 2
+
+X11_SOCK="${TERMUX_TMP}/.X11-unix"
+if [ ! -S "${X11_SOCK}/X0" ]; then
+    echo ""
+    echo "  [!] ERROR: socket X11 tidak muncul: ${X11_SOCK}/X0"
+    echo "      Pastikan app Termux:X11 sudah diinstall di Android."
+    echo "      Coba jalankan ulang setelah membuka app Termux:X11."
+    kill $X11_PID 2>/dev/null
+    exit 1
+fi
+
+echo "  [✓] Termux-X11 running — socket: ${X11_SOCK}/X0"
+echo ""
+echo "  ════════════════════════════════════════════════"
+echo "   X11 & Audio siap!"
+echo "   → Buka app Termux:X11 di Android"
+echo "   → Di tab Termux LAIN, jalankan: bash ~/start-xfce.sh"
+echo "  ════════════════════════════════════════════════"
+echo ""
+
+# Tunggu termux-x11 (jangan exit — socket hilang kalau process mati)
+wait $X11_PID
+BODY
+    } > ~/start-x11.sh
+    chmod +x ~/start-x11.sh
+    echo -e "  ${G}[✓] ~/start-x11.sh${N}  ← STEP 1: jalankan duluan, tab terpisah"
+
+    # ── start-xfce.sh — STEP 2: masuk Ubuntu → startxfce4 ─
+    # Jalankan SETELAH start-x11.sh running dan X11 socket ada.
+    {
+        cat << 'HDR'
+#!/data/data/com.termux/files/usr/bin/bash
+# start-xfce.sh — STEP 2: Masuk Ubuntu proot → startxfce4
+# Prasyarat: start-x11.sh sudah running di tab lain
 HDR
         cat << VARS
 PROOT_DISTRO="${PROOT_DISTRO}"
@@ -469,76 +559,85 @@ TERMUX_LIB="/data/data/com.termux/files/usr/lib"
 VARS
         cat << 'BODY'
 
-echo "  [*] Membersihkan sesi lama..."
-pkill -9 -f "com.termux.x11" 2>/dev/null; pkill -9 -f "termux-x11" 2>/dev/null
-pkill -9 -f "xfce4-session"  2>/dev/null; pkill -9 -f "dbus-daemon" 2>/dev/null
-sleep 0.5
-
-echo "  [*] Starting PulseAudio..."
-unset PULSE_SERVER
-pulseaudio --kill 2>/dev/null; sleep 0.3
-pulseaudio --start --exit-idle-time=-1 --daemonize=true \
-    --log-target="file:${TERMUX_TMP}/pulseaudio.log" 2>/dev/null
-sleep 1
-pactl load-module module-native-protocol-tcp \
-    auth-ip-acl=127.0.0.1 auth-anonymous=1 2>/dev/null || true
-echo "  [✓] PulseAudio ready"
-
-echo "  [*] Starting Termux-X11 (:0)..."
-termux-x11 :0 -ac &
-X11_PID=$!
-sleep 2
-
+# Cek socket X11 dulu — kalau belum ada, minta user jalankan start-x11.sh
 X11_SOCK="${TERMUX_TMP}/.X11-unix"
 if [ ! -S "${X11_SOCK}/X0" ]; then
-    echo "  [!] ERROR: Socket X11 tidak ada: ${X11_SOCK}/X0"
-    echo "      Buka app Termux:X11 di Android, lalu coba lagi."
-    kill $X11_PID 2>/dev/null; exit 1
+    echo ""
+    echo "  [!] Socket X11 tidak ditemukan: ${X11_SOCK}/X0"
+    echo ""
+    echo "  Jalankan dulu di tab Termux LAIN:"
+    echo "    bash ~/start-x11.sh"
+    echo ""
+    echo "  Setelah 'X11 & Audio siap!' muncul, buka app Termux:X11"
+    echo "  di Android, lalu jalankan script ini lagi."
+    echo ""
+    exit 1
 fi
-echo "  [✓] Termux-X11 ready"
+echo "  [✓] X11 socket ditemukan"
+
+# Matikan sesi XFCE lama jika ada
+pkill -9 -f "xfce4-session" 2>/dev/null
+pkill -9 -f "dbus-daemon"   2>/dev/null
+sleep 0.3
 
 # Susun bind mounts
 BINDS="--bind ${X11_SOCK}:/tmp/.X11-unix"
-[ -d "/dev/dri" ]             && BINDS="${BINDS} --bind /dev/dri:/dev/dri"
-[ -e "/dev/kgsl-3d0" ]        && BINDS="${BINDS} --bind /dev/kgsl-3d0:/dev/kgsl-3d0"
-[ -e "/dev/mali0" ]           && BINDS="${BINDS} --bind /dev/mali0:/dev/mali0"
-[ -d "${TERMUX_VK_ICD}" ]     && BINDS="${BINDS} --bind ${TERMUX_VK_ICD}:/usr/share/vulkan/icd.d.termux"
+[ -d "/dev/dri" ]                   && BINDS="${BINDS} --bind /dev/dri:/dev/dri"
+[ -e "/dev/kgsl-3d0" ]              && BINDS="${BINDS} --bind /dev/kgsl-3d0:/dev/kgsl-3d0"
+[ -e "/dev/mali0" ]                 && BINDS="${BINDS} --bind /dev/mali0:/dev/mali0"
+[ -d "${TERMUX_VK_ICD}" ]           && BINDS="${BINDS} --bind ${TERMUX_VK_ICD}:/usr/share/vulkan/icd.d.termux"
 [ -f "${TERMUX_LIB}/libvulkan.so" ] && \
     BINDS="${BINDS} --bind ${TERMUX_LIB}/libvulkan.so:/usr/lib/aarch64-linux-gnu/libvulkan_termux.so"
 
-echo "  [*] Masuk Ubuntu, login sebagai: ${ADMIN_USER}"
-echo "  [*] Buka app Termux:X11 di Android untuk melihat desktop!"
+echo "  [*] Masuk Ubuntu → login sebagai ${ADMIN_USER} → startxfce4"
 echo ""
 
-proot-distro login "${PROOT_DISTRO}" ${BINDS} -- bash -c '
-    chmod 1777 /tmp 2>/dev/null || true
-    mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix 2>/dev/null || true
+proot-distro login "${PROOT_DISTRO}" \
+    --env DISPLAY=:0 \
+    --env PULSE_SERVER=127.0.0.1 \
+    --env XDG_RUNTIME_DIR=/tmp \
+    ${BINDS} \
+    -- bash -c '
+        # Set PATH eksplisit — proot tidak inherit PATH Android
+        export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        chmod 1777 /tmp 2>/dev/null || true
+        mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix 2>/dev/null || true
 
-    if [ ! -S /tmp/.X11-unix/X0 ]; then
-        echo "[!] Error: bind X11 socket gagal"; exit 1
-    fi
+        if [ ! -S /tmp/.X11-unix/X0 ]; then
+            echo "[!] Bind X11 socket gagal di dalam Ubuntu"; exit 1
+        fi
 
-    su - '"${ADMIN_USER}"' -c "
-        [ -f ~/.gpu-env.sh ] && source ~/.gpu-env.sh
-        echo \"  GPU: \${GALLIUM_DRIVER:-?}  GL: \${MESA_GL_VERSION_OVERRIDE:-?}  DISP: \${DISPLAY}\"
-        exec dbus-run-session -- startxfce4
-    "
-'
+        su - '"${ADMIN_USER}"' -c "
+            [ -f ~/.gpu-env.sh ] && source ~/.gpu-env.sh
+            echo \"  GPU : \${GALLIUM_DRIVER:-unset}\"
+            echo \"  DISP: \${DISPLAY}\"
+            echo \"  AUDIO: \${PULSE_SERVER}\"
+            echo \"\"
+            exec dbus-run-session -- startxfce4
+        "
+    '
 
 EXIT_CODE=$?
+echo ""
 [ ${EXIT_CODE} -eq 0 ] \
     && echo "  [✓] Sesi XFCE4 berakhir normal." \
-    || echo "  [!] XFCE4 keluar (rc=${EXIT_CODE}). Log: ${TERMUX_TMP}/pulseaudio.log"
+    || echo "  [!] XFCE4 keluar (rc=${EXIT_CODE})"
+echo "  Log audio: ${TERMUX_TMP}/pulseaudio.log"
+echo ""
+echo "  Troubleshooting:"
+echo "  • Layar hitam  → edit start-x11.sh: termux-x11 :0 -legacy-drawing -ac"
+echo "  • Warna balik  → edit start-x11.sh: termux-x11 :0 -force-bgra -ac"
 BODY
     } > ~/start-xfce.sh
     chmod +x ~/start-xfce.sh
-    echo -e "  ${G}[✓] ~/start-xfce.sh${N}"
+    echo -e "  ${G}[✓] ~/start-xfce.sh${N}  ← STEP 2: jalankan setelah start-x11.sh"
 
     # ── shell-ubuntu.sh ───────────────────────────────────
     {
         cat << 'HDR'
 #!/data/data/com.termux/files/usr/bin/bash
 # shell-ubuntu.sh — Masuk shell Ubuntu sebagai admin
+# Untuk: apt install, konfigurasi, troubleshoot
 HDR
         cat << VARS
 PROOT_DISTRO="${PROOT_DISTRO}"
@@ -549,11 +648,14 @@ VARS
         cat << 'BODY'
 BINDS=""
 X11_SOCK="${TERMUX_TMP}/.X11-unix"
-[ -d "${X11_SOCK}" ]       && BINDS="${BINDS} --bind ${X11_SOCK}:/tmp/.X11-unix"
-[ -d "/dev/dri" ]           && BINDS="${BINDS} --bind /dev/dri:/dev/dri"
-[ -e "/dev/kgsl-3d0" ]      && BINDS="${BINDS} --bind /dev/kgsl-3d0:/dev/kgsl-3d0"
-[ -d "${TERMUX_VK_ICD}" ]   && BINDS="${BINDS} --bind ${TERMUX_VK_ICD}:/usr/share/vulkan/icd.d.termux"
-proot-distro login "${PROOT_DISTRO}" ${BINDS} -- bash -c "su - ${ADMIN_USER}"
+[ -d "${X11_SOCK}" ]     && BINDS="${BINDS} --bind ${X11_SOCK}:/tmp/.X11-unix"
+[ -d "/dev/dri" ]        && BINDS="${BINDS} --bind /dev/dri:/dev/dri"
+[ -e "/dev/kgsl-3d0" ]   && BINDS="${BINDS} --bind /dev/kgsl-3d0:/dev/kgsl-3d0"
+[ -d "${TERMUX_VK_ICD}" ] && BINDS="${BINDS} --bind ${TERMUX_VK_ICD}:/usr/share/vulkan/icd.d.termux"
+
+proot-distro login "${PROOT_DISTRO}" ${BINDS} -- \
+    env PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+    bash -c "su - ${ADMIN_USER}"
 BODY
     } > ~/shell-ubuntu.sh
     chmod +x ~/shell-ubuntu.sh
@@ -583,18 +685,30 @@ show_done() {
   ╚════════════════════════════════════════════════════╝
 EOF
     echo -e "${N}"
-    echo -e "  ${W}User   :${N} ${ADMIN_USER} / ${ADMIN_PASS}  (sudo NOPASSWD)"
-    echo -e "  ${W}GPU    :${N} ${GPU_MODE}"
+    echo -e "  ${W}User :${N} ${ADMIN_USER} / ${ADMIN_PASS}  (sudo NOPASSWD)"
+    echo -e "  ${W}GPU  :${N} ${GPU_MODE}"
     echo ""
-    echo -e "  ${G}Jalankan XFCE4:${N}       ${W}bash ~/start-xfce.sh${N}"
-    echo -e "  ${G}Shell Ubuntu  :${N}       ${W}bash ~/shell-ubuntu.sh${N}"
-    echo -e "  ${G}Stop semua    :${N}       ${W}bash ~/stop-xfce.sh${N}"
+    echo -e "  ${Y}══ CARA PAKAI ════════════════════════════════════${N}"
+    echo ""
+    echo -e "  ${G}1. Jalankan di tab Termux PERTAMA:${N}"
+    echo -e "     ${W}bash ~/start-x11.sh${N}"
+    echo -e "     ${D}→ Tunggu hingga 'X11 & Audio siap!' muncul${N}"
+    echo -e "     ${D}→ Buka app Termux:X11 di Android${N}"
+    echo ""
+    echo -e "  ${G}2. Jalankan di tab Termux KEDUA:${N}"
+    echo -e "     ${W}bash ~/start-xfce.sh${N}"
+    echo -e "     ${D}→ Desktop XFCE4 muncul di Termux:X11${N}"
+    echo ""
+    echo -e "  ${G}3. Shell Ubuntu (install app):${N}"
+    echo -e "     ${W}bash ~/shell-ubuntu.sh${N}"
+    echo ""
+    echo -e "  ${G}4. Stop semua:${N}"
+    echo -e "     ${W}bash ~/stop-xfce.sh${N}"
     echo ""
     echo -e "  ${Y}Troubleshooting:${N}"
-    echo    "  • Layar hitam   → termux-x11 :0 -legacy-drawing -ac"
-    echo    "  • Warna balik   → termux-x11 :0 -force-bgra -ac"
-    echo    "  • X11 error     → Buka app Termux:X11 SEBELUM start-xfce.sh"
-    echo    "  • dbus crash    → sudo apt install dbus dbus-x11 (di shell-ubuntu.sh)"
+    echo    "  • Layar hitam  → di start-x11.sh: termux-x11 :0 -legacy-drawing -ac"
+    echo    "  • Warna balik  → di start-x11.sh: termux-x11 :0 -force-bgra -ac"
+    echo    "  • dbus crash   → bash ~/shell-ubuntu.sh → sudo apt install dbus dbus-x11"
     echo ""
 }
 
