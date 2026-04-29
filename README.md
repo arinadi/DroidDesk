@@ -65,6 +65,25 @@ To keep the environment lightning-fast and prevent storage bloat, this script de
 - **Termux:X11** Android app (Nightly release)
 - **Termux:Widget** (Optional, but highly recommended for 1-tap launchers)
 
+## 🛑 CRITICAL: Android 12+ Background Restrictions (Signal 9 Error)
+
+If your Termux session suddenly crashes with `[Process completed (signal 9) - press Enter]`, it means Android's **Phantom Process Killer** has forcefully terminated your Linux desktop for running too many background processes. Running a full desktop environment (Window manager, panels, DBus) easily hits this limit.
+
+**To fix this permanently:**
+
+- **Android 14+**: 
+  1. Enable **Developer Options** in your Android Settings.
+  2. Find the setting **"Disable child process restrictions"** and turn it **ON**.
+- **Android 12 & 13**:
+  You must use ADB (from a PC, or via Wireless Debugging directly in Termux) to run these commands:
+  ```bash
+  adb shell "/system/bin/device_config put activity_manager max_phantom_processes 2147483647"
+  adb shell settings put global settings_enable_monitor_phantom_procs false
+  ```
+
+> [!WARNING]
+> Without disabling this restriction, your Proot XFCE session **will** crash repeatedly during heavy usage (e.g., browsing the web with Firefox or compiling code).
+
 ## 🚀 Usage
 
 ### 📱 Termux:Widget Support
