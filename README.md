@@ -41,6 +41,23 @@ While you can install XFCE natively in Termux, running the **entire desktop insi
   - 🔴 `kill-proot.sh` — Stop all XFCE processes and clean temp files securely.
   - 🔄 `update-droiddesk.sh` — Safely update these scripts from GitHub.
 
+## 🧩 The Minimalist Package Philosophy
+
+To keep the environment lightning-fast and prevent storage bloat, this script deliberately avoids "kitchen-sink" meta-packages (like `xfce4` or `xubuntu-desktop`) which install hundreds of unnecessary background services. Instead, we use a highly curated, modular list:
+
+**1. Termux Host Packages:**
+- `x11-repo` & `tur-repo`: Required to access the specialized X11 and Termux User Repository packages.
+- `termux-x11-nightly`: The absolute best, highest-performance X server for Android (far superior to VNC).
+- `proot-distro`: The official, safest way to manage Linux containers in Termux.
+- `pulseaudio` & `xorg-xrandr`: Essential for native audio forwarding and display scaling.
+
+**2. Ubuntu Proot Packages (`--no-install-recommends`):**
+- `dbus-x11`: Crucial for Inter-Process Communication (IPC). Without this, XFCE components cannot talk to each other and will crash.
+- `xfce4-session`, `xfwm4`, `xfce4-panel`: The absolute bare minimum trinity to render a working desktop (Session manager, Window manager, and Taskbar).
+- `xfdesktop4`, `thunar`, `xfce4-settings`, `xfce4-terminal`: Provides the desktop background, file manager, GUI settings app, and a terminal to actually interact with the system.
+- `libgl1`, `mesa-utils`: Provides OpenGL rendering support so the window manager doesn't crash on Android displays.
+- `firefox-esr`: Hand-picked as the most stable, reliable browser for proot environments.
+
 ## 📋 Requirements
 
 - Android phone (ARM64)
