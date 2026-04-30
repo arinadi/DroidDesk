@@ -196,10 +196,21 @@ KILLPROOTEOF
 # --- Launcher 5: Auto-Updater ---
 cat > ~/.shortcuts/update-droiddesk.sh << 'UPDATEEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-echo ">>> Downloading latest DroidDesk script..."
-curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/proot-xfce-setup.sh?v=$(date +%s)" -o ~/proot-xfce-setup.sh
-echo ">>> Running update..."
-bash ~/proot-xfce-setup.sh
+echo ">>> Updating DroidDesk..."
+cd ~
+rm -f proot-xfce-setup.sh.new
+curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/proot-xfce-setup.sh?v=$(date +%s)" -o proot-xfce-setup.sh.new
+
+if [ -s proot-xfce-setup.sh.new ]; then
+    chmod +x proot-xfce-setup.sh.new
+    mv -f proot-xfce-setup.sh.new proot-xfce-setup.sh
+    echo ">>> Update successful. Running setup..."
+    ./proot-xfce-setup.sh
+else
+    echo "ERROR: Download failed. Check your internet connection."
+    rm -f proot-xfce-setup.sh.new
+    exit 1
+fi
 UPDATEEOF
 
 chmod +x ~/.shortcuts/start-x11.sh ~/.shortcuts/start-xfce.sh ~/.shortcuts/kill-x11.sh ~/.shortcuts/kill-proot.sh ~/.shortcuts/update-droiddesk.sh
