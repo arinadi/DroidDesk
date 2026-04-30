@@ -197,7 +197,7 @@ KILLPROOTEOF
 cat > ~/.shortcuts/update-droiddesk.sh << 'UPDATEEOF'
 #!/data/data/com.termux/files/usr/bin/bash
 echo ">>> Downloading latest DroidDesk script..."
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/proot-xfce-setup.sh -o ~/proot-xfce-setup.sh
+curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/proot-xfce-setup.sh?v=$(date +%s)" -o ~/proot-xfce-setup.sh
 echo ">>> Running update..."
 bash ~/proot-xfce-setup.sh
 UPDATEEOF
