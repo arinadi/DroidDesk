@@ -24,20 +24,27 @@ trap "rm -f '$TMPFILE' '${ROOTFS}/tmp/_tui_install.sh' 2>/dev/null" EXIT
 dialog --title " 📦 DroidDesk Package Installer " \
     --checklist "\n Select packages to install into Ubuntu proot.\n Use SPACE to toggle, ENTER to confirm.\n\n ── Dev Essentials ──────────────────" \
     0 0 0 \
-    "geany"           "📝  Lightweight IDE"                ON  \
+    "geany"           "📝  Geany (Lightweight IDE)"       ON  \
     "git"             "🔧  Git Version Control"            ON  \
     "gh"              "🐙  GitHub CLI"                     ON  \
     "nodejs"          "🟢  Node.js 24 (NodeSource)"        ON  \
     "python3-pip"     "🐍  Python Pip"                     ON  \
     "python3-venv"    "🐍  Python Virtual Env"             ON  \
+    "sqlitebrowser"   "🗃️   SQLite Browser (GUI)"           OFF \
+    "meld"            "🌿  Meld (Visual Diff/Merge)"       OFF \
     "build-essential" "⚙️   GCC / Make / G++"               OFF \
     "cmake"           "⚙️   CMake Build System"             OFF \
     "──1──"           "── System Tools ─────────────────"  OFF \
     "nala"            "📦  Modern APT Frontend"            ON  \
-    "htop"            "📊  Process Monitor"                ON  \
+    "htop"            "📊  Process Monitor (CLI)"          ON  \
+    "lxtask"          "📊  LXTask (GUI Task Manager)"      OFF \
     "tmux"            "🖥️   Terminal Multiplexer"           OFF \
     "openssh-client"  "🔑  SSH Client"                     OFF \
-    "──2──"           "── CLI Utilities ────────────────"  OFF \
+    "──2──"           "── GUI Utilities ────────────────"  OFF \
+    "viewnior"        "🖼️   Viewnior (Light Image Viewer)"  OFF \
+    "xarchiver"       "📦  Xarchiver (Archive Manager)"    OFF \
+    "galculator"      "🔢  Galculator (Scientific Calc)"   OFF \
+    "──3──"           "── CLI Utilities ────────────────"  OFF \
     "jq"              "📋  JSON Processor"                 ON  \
     "tree"            "🌳  Directory Tree View"            ON  \
     "ripgrep"         "🔍  Fast Grep (rg)"                 ON  \
@@ -45,13 +52,14 @@ dialog --title " 📦 DroidDesk Package Installer " \
     "wget"            "⬇️   Download Manager"               ON  \
     "zip"             "📦  ZIP / UNZIP Tools"              ON  \
     "sqlite3"         "🗃️   SQLite CLI"                     OFF \
-    "──3──"           "── Editors ──────────────────────"  OFF \
+    "──4──"           "── Editors ──────────────────────"  OFF \
     "vim"             "📝  Vim Editor"                     OFF \
     "nano"            "📝  Nano Editor"                    OFF \
-    "mousepad"        "📝  XFCE Notepad (GUI)"            OFF \
-    "──4──"           "── Browsers ─────────────────────"  OFF \
-    "firefox-esr"     "🌐  Firefox ESR (heavy ~200MB)"    OFF \
-    "──5──"           "── Fonts & Theming ──────────────"  OFF \
+    "mousepad"        "📝  Mousepad (XFCE Notepad)"       OFF \
+    "──5──"           "── Browsers ─────────────────────"  OFF \
+    "firefox-esr"     "🌐  Firefox ESR (Heavy ~200MB)"    OFF \
+    "netsurf-gtk"     "🌐  NetSurf (Ultra Light Browser)"  OFF \
+    "──6──"           "── Fonts & Theming ──────────────"  OFF \
     "fonts-firacode"  "🔤  Fira Code (ligatures)"         OFF \
     "papirus-icon-theme" "🎨 Papirus Icons (XFCE)"        OFF \
     "arc-theme"       "🎨  Arc GTK Theme"                  OFF \
@@ -176,6 +184,13 @@ command -v htop    &>/dev/null && printf "║  ✅ %-30s║\n" "htop"
 command -v nala    &>/dev/null && printf "║  ✅ %-30s║\n" "nala"
 command -v tmux    &>/dev/null && printf "║  ✅ %-30s║\n" "tmux"
 command -v vim     &>/dev/null && printf "║  ✅ %-30s║\n" "vim"
+command -v meld     &>/dev/null && printf "║  ✅ %-30s║\n" "meld"
+command -v sqlitebrowser &>/dev/null && printf "║  ✅ %-30s║\n" "sqlitebrowser"
+command -v viewnior  &>/dev/null && printf "║  ✅ %-30s║\n" "viewnior"
+command -v galculator &>/dev/null && printf "║  ✅ %-30s║\n" "galculator"
+command -v lxtask    &>/dev/null && printf "║  ✅ %-30s║\n" "lxtask"
+command -v xarchiver &>/dev/null && printf "║  ✅ %-30s║\n" "xarchiver"
+command -v netsurf-gtk &>/dev/null && printf "║  ✅ %-30s║\n" "netsurf-gtk"
 command -v cmake   &>/dev/null && printf "║  ✅ %-30s║\n" "cmake $(cmake --version 2>/dev/null | head -1 | awk '{print $3}')"
 command -v sqlite3 &>/dev/null && printf "║  ✅ %-30s║\n" "sqlite3"
 command -v firefox-esr &>/dev/null && printf "║  ✅ %-30s║\n" "firefox-esr"
