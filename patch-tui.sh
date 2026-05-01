@@ -63,6 +63,13 @@ dialog --title " 📦 DroidDesk Package Installer " \
     "fonts-firacode"  "🔤  Fira Code (ligatures)"         OFF \
     "papirus-icon-theme" "🎨 Papirus Icons (XFCE)"        OFF \
     "arc-theme"       "🎨  Arc GTK Theme"                  OFF \
+    "──7──"           "── AI & LLM Tools ─────────────────"  OFF \
+    "gemini-chat"     "🤖  Gemini CLI (npm)"               OFF \
+    "qwen-chat"       "🤖  Qwen CLI (npm)"                 OFF \
+    "context-mode"    "🤖  Context-Mode (npm)"              OFF \
+    "aichat"          "🤖  AIChat (Multi-Provider)"        OFF \
+    "shell-gpt"       "🤖  Shell GPT (Python)"             OFF \
+    "ollama"          "🤖  Ollama (Local LLMs)"            OFF \
     2>"$TMPFILE"
 
 # Check if user cancelled
@@ -86,6 +93,9 @@ fi
 APT_PKGS=""
 SETUP_GH=false
 SETUP_NODE=false
+NPM_AI_PKGS=""
+PIP_AI_PKGS=""
+SETUP_AICHAT=false
 
 for pkg in $SELECTIONS; do
     pkg=$(echo "$pkg" | tr -d '"')
@@ -93,14 +103,23 @@ for pkg in $SELECTIONS; do
         ──*──)   ;; # skip separator items
         gh)      SETUP_GH=true ;;
         nodejs)  SETUP_NODE=true ;;
+        gemini-chat|qwen-chat|context-mode) 
+                 SETUP_NODE=true
+                 NPM_AI_PKGS="$NPM_AI_PKGS $pkg" 
+                 ;;
+        shell-gpt) 
+                 APT_PKGS="$APT_PKGS python3-pip"
+                 PIP_AI_PKGS="$PIP_AI_PKGS shell-gpt" 
+                 ;;
+        aichat)  SETUP_AICHAT=true ;;
         zip)     APT_PKGS="$APT_PKGS zip unzip" ;;
         *)       APT_PKGS="$APT_PKGS $pkg" ;;
     esac
 done
 
 # Always ensure ca-certificates and gnupg for repo setup
-if $SETUP_GH || $SETUP_NODE; then
-    APT_PKGS="ca-certificates gnupg $APT_PKGS"
+if $SETUP_GH || $SETUP_NODE || $SETUP_AICHAT; then
+    APT_PKGS="ca-certificates gnupg curl $APT_PKGS"
 fi
 
 # =============================================
@@ -160,6 +179,54 @@ fi
 NODEEOF
 fi
 
+# NPM AI Tools
+if [ -n "$NPM_AI_PKGS" ]; then
+    for ai_pkg in $NPM_AI_PKGS; do
+        real_pkg="$ai_pkg"
+        [ "$ai_pkg" = "context-mode" ] && real_pkg="@context-mode/mcp-server"
+        cat >> "$SCRIPT_PATH" << AINPMEOF
+echo ">>> Installing ${ai_pkg} via npm..."
+npm install -g ${real_pkg} || echo "  ⚠️  Failed to install ${ai_pkg}"
+AINPMEOF
+    done
+fi
+
+# Pip AI Tools
+if [ -n "$PIP_AI_PKGS" ]; then
+    for ai_pkg in $PIP_AI_PKGS; do
+        cat >> "$SCRIPT_PATH" << AIPIPEOF
+echo ">>> Installing ${ai_pkg} via pip..."
+pip3 install --break-system-packages ${ai_pkg} || echo "  ⚠️  Failed to install ${ai_pkg}"
+AIPIPEOF
+    done
+fi
+
+# AIChat (Binary)
+if $SETUP_AICHAT; then
+    cat >> "$SCRIPT_PATH" << 'AICHATEOF'
+echo ">>> Installing AIChat binary..."
+ARCH=$(dpkg --print-architecture)
+case "$ARCH" in
+    amd64) A_ARCH="x86_64" ;;
+    arm64) A_ARCH="aarch64" ;;
+    armhf) A_ARCH="armv7" ;;
+    *)     A_ARCH="$ARCH" ;;
+esac
+# Get latest version tag
+VER=$(curl -s https://api.github.com/repos/sigoden/aichat/releases/latest | jq -r .tag_name)
+URL="https://github.com/sigoden/aichat/releases/download/${VER}/aichat-${VER}-${A_ARCH}-unknown-linux-gnu.tar.gz"
+curl -L "$URL" | tar xz -C /usr/local/bin || echo "  ⚠️  Failed to install aichat"
+AICHATEOF
+fi
+
+# Ollama
+if [[ "$SELECTIONS" == *"ollama"* ]]; then
+    cat >> "$SCRIPT_PATH" << 'OLLAMAEOF'
+echo ">>> Installing Ollama..."
+curl -fsSL https://ollama.com/install.sh | sh || echo "  ⚠️  Failed to install ollama"
+OLLAMAEOF
+fi
+
 # Cleanup and verification footer
 cat >> "$SCRIPT_PATH" << 'FOOTER'
 
@@ -194,6 +261,12 @@ command -v netsurf-gtk &>/dev/null && printf "║  ✅ %-30s║\n" "netsurf-gtk"
 command -v cmake   &>/dev/null && printf "║  ✅ %-30s║\n" "cmake $(cmake --version 2>/dev/null | head -1 | awk '{print $3}')"
 command -v sqlite3 &>/dev/null && printf "║  ✅ %-30s║\n" "sqlite3"
 command -v firefox-esr &>/dev/null && printf "║  ✅ %-30s║\n" "firefox-esr"
+command -v aichat     &>/dev/null && printf "║  ✅ %-30s║\n" "aichat"
+command -v gemini-chat &>/dev/null && printf "║  ✅ %-30s║\n" "gemini-chat"
+command -v qwen-chat   &>/dev/null && printf "║  ✅ %-30s║\n" "qwen-chat"
+command -v context-mode &>/dev/null && printf "║  ✅ %-30s║\n" "context-mode"
+command -v sgpt        &>/dev/null && printf "║  ✅ %-30s║\n" "shell-gpt"
+command -v ollama      &>/dev/null && printf "║  ✅ %-30s║\n" "ollama"
 echo "╚═══════════════════════════════════╝"
 FOOTER
 
