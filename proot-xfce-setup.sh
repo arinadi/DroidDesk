@@ -10,13 +10,23 @@ PROOT_USER="admin"
 PROOT_PASS="admin"
 ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${DISTRO}"
 
-# =============================================
-#  Step 1/3: Termux Host Setup
-# =============================================
+# Install required host packages
 echo ">>> 1/3: Termux Host Setup..."
 pkg update -y
 pkg install -y x11-repo tur-repo
-pkg install -y termux-x11-nightly proot-distro pulseaudio xorg-xrandr
+pkg install -y termux-x11-nightly proot-distro pulseaudio xorg-xrandr netcat-openbsd
+
+# Create Termux:API Bridge Script
+cat > ~/termux-api-bridge.sh << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+IN_PORT=8888
+OUT_PORT=8889
+trap "pkill -P $$; exit" SIGINT SIGTERM
+while true; do
+    nc -l -p $IN_PORT | bash 2>&1 | nc -l -p $OUT_PORT
+done
+EOF
+chmod +x ~/termux-api-bridge.sh
 
 # =============================================
 #  Step 2/3: Ubuntu Distro Setup
@@ -50,7 +60,17 @@ proot-distro login "$DISTRO" -- bash -c "
         sudo dbus-x11 \
         xfce4-session xfwm4 xfce4-panel xfce4-terminal \
         xfce4-settings xfconf thunar xfdesktop4 \
-        fonts-noto pulseaudio-utils libgl1 mesa-utils
+        fonts-noto pulseaudio-utils libgl1 mesa-utils \
+        netcat-openbsd python3-tk
+
+    # --- Termux:API Bridge Client (tapi) ---
+    cat > /usr/local/bin/tapi << 'TAPIOF'
+#!/bin/bash
+# tapi (Termux-API-Bridge-Client)
+echo "$@" | nc 127.0.0.1 8888 &
+timeout 10 nc 127.0.0.1 8889
+TAPIOF
+    chmod +x /usr/local/bin/tapi
 
     # --- User Setup ---
     id ${PROOT_USER} &>/dev/null || useradd -m -s /bin/bash ${PROOT_USER}
@@ -104,6 +124,11 @@ pactl load-module module-aaudio-sink 2>/dev/null || pactl load-module module-sle
 
 # Load TCP Protocol for Proot Access
 pactl load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 2>/dev/null
+
+# Start Termux:API Bridge
+echo ">>> Starting Termux:API Bridge..."
+pkill -f termux-api-bridge.sh 2>/dev/null
+bash ~/termux-api-bridge.sh > /dev/null 2>&1 &
 
 # Start X11
 echo ">>> Starting Termux-X11..."
@@ -172,6 +197,9 @@ if pkill "pulseaudio" 2>/dev/null; then
 else
     echo "  [-] pulseaudio not running"
 fi
+
+# Kill Termux:API Bridge
+pkill -f termux-api-bridge.sh 2>/dev/null && echo "  [x] termux-api bridge killed"
 
 # Cleanup stale files (Termux tmp, not /tmp)
 TERMUX_TMP="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
