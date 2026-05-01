@@ -168,10 +168,24 @@ step_update() {
 # ============== STEP 2: REPOSITORIES ==============
 step_repos() {
     update_progress
-    echo -e "${PURPLE}[Step ${CURRENT_STEP}/${TOTAL_STEPS}] Adding repositories...${NC}"
+    echo -e "${PURPLE}[Step ${CURRENT_STEP}/${TOTAL_STEPS}] Adding repositories & bridge...${NC}"
     echo ""
     install_pkg "x11-repo" "X11 Repository"
     install_pkg "tur-repo" "TUR Repository"
+    install_pkg "netcat-openbsd" "Netcat (API Bridge)"
+    install_pkg "termux-api" "Termux:API"
+
+    # Create Termux:API Bridge Script
+    cat > ~/termux-api-bridge.sh << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+IN_PORT=8888
+OUT_PORT=8889
+trap "pkill -P $$; exit" SIGINT SIGTERM
+while true; do
+    nc -l -p $IN_PORT | bash 2>&1 | nc -l -p $OUT_PORT
+done
+EOF
+    chmod +x ~/termux-api-bridge.sh
 }
 
 # ============== STEP 3: TERMUX-X11 ==============
@@ -294,7 +308,16 @@ step_proot() {
             mesa-utils vulkan-tools \
             libgl1-mesa-glx libvulkan1 libgles2 \
             xfce4 xfce4-terminal dbus-x11 \
-            sudo curl wget git htop nano > /dev/null 2>&1
+            sudo curl wget git htop nano \
+            netcat-openbsd python3-tk python3-venv build-essential > /dev/null 2>&1
+
+        # --- Termux:API Bridge Client (tapi) ---
+        cat > /usr/local/bin/tapi << 'TAPIOF'
+#!/bin/bash
+echo \"\$@\" | nc 127.0.0.1 8888 &
+timeout 10 nc 127.0.0.1 8889
+TAPIOF
+        chmod +x /usr/local/bin/tapi
     " 2>/dev/null || true
     echo -e "  [+] ${PROOT_LABEL} ready."
 
@@ -595,8 +618,12 @@ ${KILL_CMD}
 pkill -9 -f "dbus" 2>/dev/null
 
 unset PULSE_SERVER
-pulseaudio --kill 2>/dev/null
-sleep 0.5
+# Start Bridge & Wake Lock
+echo "[*] Activating Wake Lock & API Bridge..."
+termux-wake-lock
+pkill -f termux-api-bridge.sh 2>/dev/null
+bash ~/termux-api-bridge.sh > /dev/null 2>&1 &
+
 echo "[*] Starting audio..."
 pulseaudio --start --exit-idle-time=-1
 sleep 1
@@ -631,6 +658,8 @@ pkill -9 -f "Xvnc" 2>/dev/null
 pkill -9 -f "pulseaudio" 2>/dev/null
 ${KILL_CMD}
 pkill -9 -f "dbus" 2>/dev/null
+pkill -f termux-api-bridge.sh 2>/dev/null
+termux-wake-unlock
 rm -f /tmp/.X1-lock /tmp/.X11-unix/X1 2>/dev/null
 echo "Done."
 STOPEOF
