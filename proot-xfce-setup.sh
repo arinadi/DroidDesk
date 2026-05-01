@@ -50,8 +50,7 @@ proot-distro login "$DISTRO" -- bash -c "
         sudo dbus-x11 \
         xfce4-session xfwm4 xfce4-panel xfce4-terminal \
         xfce4-settings xfconf thunar xfdesktop4 \
-        fonts-noto pulseaudio-utils libgl1 mesa-utils \
-        firefox-esr
+        fonts-noto pulseaudio-utils libgl1 mesa-utils
 
     # --- User Setup ---
     id ${PROOT_USER} &>/dev/null || useradd -m -s /bin/bash ${PROOT_USER}
