@@ -1,9 +1,18 @@
 <div align="center">
   <h1>📱 DroidDesk Proot XFCE</h1>
-  <p>A focused, audio-optimized setup script for running a complete XFCE desktop inside a Termux proot environment.</p>
+  <p>A portable Linux environment for Android designed to overcome mobile OS limitations.</p>
 </div>
 
 ---
+
+## 💡 The Vision: Portable Linux Power
+
+DroidDesk isn't just a terminal; it's a **complete Linux workstation in your pocket**. It solves the two biggest pain points of mobile productivity:
+
+1.  **Overcoming Android Sleep Limits:** Native Android browsers (Chrome/Firefox) aggressively sleep background tabs when the screen is off. By running a full desktop browser inside a proot Linux session, you can keep complex web apps alive.
+    *   *Usecase:* Running **Google Colab** as a background backend for a Telegram bot or long-running scripts that must not sleep.
+2.  **Native Developer Tooling:** Mobile apps are limited. DroidDesk provides standard `glibc` environments for the tools you actually use.
+    *   *Usecase:* A full **Web Development IDE** (VS Code, Geany) with native Node.js, Python, and Git, allowing you to code anywhere with a desktop-class experience.
 
 ## ⚡ Quick Install
 
