@@ -247,9 +247,10 @@ pkill -9 -f "proot.*installed-rootfs/${DISTRO}" 2>/dev/null || true
 
 # Clean temp and artifacts inside rootfs (preserves all config files)
 ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${DISTRO}"
-if [ -d "\$ROOTFS/tmp" ]; then
+if [ -d "\$ROOTFS" ]; then
     echo "  [*] Cleaning temp and session cache..."
     rm -rf "\$ROOTFS/tmp/.X"* 2>/dev/null
+    rm -rf "\$ROOTFS/tmp/.xfsm-ICE-"* 2>/dev/null
     rm -rf "\$ROOTFS/tmp/dbus-"* 2>/dev/null
     rm -rf "\$ROOTFS/tmp/ssh-"* 2>/dev/null
     rm -f "\$ROOTFS/tmp/.dbus"* 2>/dev/null
