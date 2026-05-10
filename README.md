@@ -56,6 +56,7 @@ While you can install XFCE natively in Termux, running the **entire desktop insi
 - Sets up an **Ubuntu** proot distro.
 - Installs XFCE and basic GUI tooling (thunar, settings, audio utils).
 - **Android Storage Integration:** Automatically mounts your phone's internal storage to `/sdcard` and creates symlinks in the Ubuntu home directory (`~/Downloads`, `~/Pictures`, `~/Android_Internal`).
+- **Android Hardware Control:** Built-in bridge for **Termux:API**. Control your phone's battery, notifications, and sensors directly from the XFCE terminal.
 - Generates 6 focused launcher scripts in `~/.shortcuts/` (with symlinks to `~/`):
   - 🟢 `start-x11.sh` — Start Termux:X11 and PulseAudio (Host).
   - 🟢 `start-xfce.sh` — Start XFCE session (Proot).
@@ -70,6 +71,7 @@ To keep the environment lightning-fast and prevent storage bloat, this script av
 
 **1. Termux Host Packages:**
 - `termux-setup-storage`: Grants Termux access to your phone's internal memory.
+- `termux-api`: Enables communication between the Linux desktop and Android hardware.
 - `x11-repo` & `tur-repo`: Required for high-performance X11 and Termux User Repository packages.
 - `termux-x11-nightly`: The best, highest-performance X server for Android.
 - `proot-distro`: The safest way to manage Linux containers in Termux.
@@ -86,6 +88,7 @@ To keep the environment lightning-fast and prevent storage bloat, this script av
 - Android phone (ARM64)
 - **Termux** (installed from F-Droid, NOT Play Store)
 - **Termux:X11** Android app (Nightly release)
+- **Termux:API** Android app (installed from F-Droid)
 - **Termux:Widget** (Optional, but recommended for 1-tap launchers)
 
 ## 🎨 Personalization & Pre-config
@@ -140,6 +143,13 @@ bash ~/start-xfce.sh
 bash ~/kill-all.sh
 ```
 *(Securely kills all desktop processes, audio servers, and cleans socket files)*
+
+### 📱 Android Hardware Control (Termux:API)
+You can control your phone directly from the Ubuntu terminal using the `tapi` bridge or built-in aliases:
+- `termux-battery-status` — Check phone battery level.
+- `termux-toast "Hello from Ubuntu!"` — Show a toast message on Android.
+- `termux-vibrate` — Make the phone vibrate.
+- `tapi termux-camera-info` — Get camera specifications.
 
 > [!TIP]
 > **Workflow:** Always run the `kill` scripts before starting a new session to ensure a clean slate and avoid "X server already running" or missing cursor errors!

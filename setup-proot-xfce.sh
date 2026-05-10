@@ -15,7 +15,7 @@ echo ">>> 1/3: Termux Host Setup..."
 termux-setup-storage
 pkg update -y
 pkg install -y x11-repo tur-repo
-pkg install -y termux-x11-nightly proot-distro pulseaudio xorg-xrandr netcat-openbsd
+pkg install -y termux-x11-nightly proot-distro pulseaudio xorg-xrandr netcat-openbsd termux-api
 
 # Create Termux:API Bridge Script
 cat > ~/run-api-bridge.sh << 'EOF'
@@ -84,6 +84,12 @@ TAPIOF
 export DISPLAY=:0
 export XDG_RUNTIME_DIR=/tmp
 alias update='sudo apt-get update && sudo apt-get upgrade -y'
+
+# Termux:API Aliases
+TAPI_CMDS="battery-status notification toast vibrate volume-get volume-set brightness wallpaper"
+for cmd in $TAPI_CMDS; do
+    alias termux-$cmd="tapi termux-$cmd"
+done
 BASHEOF
 
     # --- PulseAudio Client Config (TCP) ---
