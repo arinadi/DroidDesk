@@ -93,6 +93,14 @@ autospawn = no
 daemon-binary = /bin/true
 PULSEEOF
 
+    # --- Android Storage Symlinks ---
+    echo \"  [*] Setting up Android storage symlinks...\"
+    sudo -u ${PROOT_USER} mkdir -p /home/${PROOT_USER}/storage
+    # Link common folders directly to the bind-mounted /sdcard
+    sudo -u ${PROOT_USER} ln -sf /sdcard/Download /home/${PROOT_USER}/Downloads
+    sudo -u ${PROOT_USER} ln -sf /sdcard/DCIM/Camera /home/${PROOT_USER}/Pictures
+    sudo -u ${PROOT_USER} ln -sf /sdcard /home/${PROOT_USER}/Android_Internal
+
     chown -R ${PROOT_USER}:${PROOT_USER} /home/${PROOT_USER}
 " || {
     echo "ERROR: Ubuntu setup failed. Check network and disk space."
@@ -158,6 +166,7 @@ PULSE_SOCK="\${TERMUX_TMP}/pulse-socket"
 BINDS=""
 [ -d "\$X11_SOCK" ]   && BINDS="\$BINDS --bind \$X11_SOCK:/tmp/.X11-unix"
 [ -e "\$PULSE_SOCK" ] && BINDS="\$BINDS --bind \$PULSE_SOCK:/tmp/pulse-socket"
+[ -d "/storage/emulated/0" ] && BINDS="\$BINDS --bind /storage/emulated/0:/sdcard"
 
 echo ">>> Starting XFCE Desktop..."
 proot-distro login ${DISTRO} --shared-tmp \$BINDS -- su - ${PROOT_USER} -c "
