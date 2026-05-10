@@ -176,7 +176,7 @@ step_repos() {
     install_pkg "termux-api" "Termux:API"
 
     # Create Termux:API Bridge Script
-    cat > ~/termux-api-bridge.sh << 'EOF'
+    cat > ~/run-api-bridge.sh << 'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 IN_PORT=8888
 OUT_PORT=8889
@@ -185,7 +185,7 @@ while true; do
     nc -l -p $IN_PORT | bash 2>&1 | nc -l -p $OUT_PORT
 done
 EOF
-    chmod +x ~/termux-api-bridge.sh
+    chmod +x ~/run-api-bridge.sh
 }
 
 # ============== STEP 3: TERMUX-X11 ==============
@@ -621,8 +621,8 @@ unset PULSE_SERVER
 # Start Bridge & Wake Lock
 echo "[*] Activating Wake Lock & API Bridge..."
 termux-wake-lock
-pkill -f termux-api-bridge.sh 2>/dev/null
-bash ~/termux-api-bridge.sh > /dev/null 2>&1 &
+pkill -f run-api-bridge.sh 2>/dev/null
+bash ~/run-api-bridge.sh > /dev/null 2>&1 &
 
 echo "[*] Starting audio..."
 pulseaudio --start --exit-idle-time=-1
@@ -660,7 +660,7 @@ pkill -9 -f "Xvnc" 2>/dev/null
 pulseaudio --kill 2>/dev/null || pkill -9 pulseaudio
 \${KILL_CMD}
 pkill -9 -f "dbus" 2>/dev/null
-pkill -f termux-api-bridge.sh 2>/dev/null
+pkill -f run-api-bridge.sh 2>/dev/null
 termux-wake-unlock 2>/dev/null
 rm -f /tmp/.X1-lock /tmp/.X11-unix/X1 2>/dev/null
 echo "Done."

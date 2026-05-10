@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# patch-tui.sh — Interactive Package Installer for DroidDesk
+# install-tui-packages.sh — Interactive Package Installer for DroidDesk
 # Run from Termux host. Uses dialog for checkbox TUI.
 set -euo pipefail
 
@@ -7,7 +7,7 @@ DISTRO="ubuntu"
 ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${DISTRO}"
 
 if [ ! -d "$ROOTFS" ]; then
-    echo "ERROR: Ubuntu proot not found. Run proot-xfce-setup.sh first."
+    echo "ERROR: Ubuntu proot not found. Run setup-proot-xfce.sh first."
     exit 1
 fi
 

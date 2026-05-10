@@ -46,14 +46,14 @@ get_status()
 
 ## 🛠️ Technical Details
 The bridge consists of two parts:
-1.  **Host Listener (`termux-api-bridge.sh`):** A Netcat (`nc`) loop running on Termux host (Port 8888).
+1.  **Host Listener (`run-api-bridge.sh`):** A Netcat (`nc`) loop running on Termux host (Port 8888).
 2.  **Guest Client (`tapi`):** A small wrapper script in `/usr/local/bin/tapi` that sends commands to the host and waits for the response on Port 8889.
 
 ### Troubleshooting
 If `tapi` hangs or fails:
 1.  Ensure you started X11 via `bash ~/start-x11.sh` (which starts the bridge).
 2.  Check if `netcat-openbsd` is installed on both Host and Guest.
-3.  Restart the bridge: `pkill -f termux-api-bridge.sh && bash ~/termux-api-bridge.sh &`.
+3.  Restart the bridge: `pkill -f run-api-bridge.sh && bash ~/run-api-bridge.sh &`.
 
 ---
 

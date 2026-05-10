@@ -73,7 +73,7 @@ Install it on your phone. This is the display server that renders the desktop.
 Open Termux and run:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/termux-linux-setup.sh -o setup.sh
+curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/setup-termux-native.sh -o setup.sh
 bash setup.sh
 ```
 
@@ -128,11 +128,11 @@ sudo apt install realvnc-vnc-viewer
 
 ### Step 3: Copy the Launcher Script
 
-Copy `pi-launch_phone.sh` to your Pi:
+Copy `launch-pi-vnc.sh` to your Pi:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/pi-launch_phone.sh -o ~/pi-launch_phone.sh
-chmod +x ~/pi-launch_phone.sh
+curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/launch-pi-vnc.sh -o ~/launch-pi-vnc.sh
+chmod +x ~/launch-pi-vnc.sh
 ```
 
 ### Step 4: Connect and Launch
@@ -143,7 +143,7 @@ chmod +x ~/pi-launch_phone.sh
 4. Run the bridge script on the Pi:
 
 ```bash
-bash ~/pi-launch_phone.sh
+bash ~/launch-pi-vnc.sh
 ```
 
 The script auto-detects the phone's IP and opens a fullscreen VNC session on the monitor.
@@ -159,7 +159,7 @@ crontab -e
 Add this line:
 
 ```
-@reboot sleep 15 && /home/pi/pi-launch_phone.sh
+@reboot sleep 15 && /home/pi/launch-pi-vnc.sh
 ```
 
 ## Commands Reference

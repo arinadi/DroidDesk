@@ -19,9 +19,9 @@ DroidDesk isn't just a terminal; it's a **complete Linux workstation in your poc
 Download and run the setup script directly from GitHub in Termux:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/proot-xfce-setup.sh -o ~/proot-xfce-setup.sh
-chmod +x ~/proot-xfce-setup.sh
-bash ~/proot-xfce-setup.sh
+curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/setup-proot-xfce.sh -o ~/setup-proot-xfce.sh
+chmod +x ~/setup-proot-xfce.sh
+bash ~/setup-proot-xfce.sh
 ```
 
 > [!NOTE]
@@ -68,7 +68,7 @@ To keep the environment lightning-fast and prevent storage bloat, this script de
 - `libgl1`, `mesa-utils`: Provides OpenGL rendering support so the window manager doesn't crash on Android displays.
 
 > [!TIP]
-> Use `bash ~/patch-tui.sh` after installation to easily install Browsers (Firefox), AI Tools, and Dev IDEs.
+> Use `bash ~/install-tui-packages.sh` after installation to easily install Browsers (Firefox), AI Tools, and Dev IDEs.
 
 ## 📋 Requirements
 
@@ -82,7 +82,7 @@ DroidDesk comes with an optimized XFCE configuration (64px panel, high DPI, blac
 
 To apply the pre-set theme inside your Proot environment:
 ```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/apply-preconfig.sh | bash
+curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/apply-xfce-config.sh | bash
 ```
 *Note: Restart your XFCE session after applying.*
 

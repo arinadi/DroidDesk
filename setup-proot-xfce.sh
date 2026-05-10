@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# proot-xfce-setup.sh (Audio Focused, No GPU)
+# setup-proot-xfce.sh (Audio Focused, No GPU)
 # Fixed: variable expansion, dialog, apt-get, --no-install-recommends,
 #        launcher escaping, error handling
 set -euo pipefail
@@ -17,7 +17,7 @@ pkg install -y x11-repo tur-repo
 pkg install -y termux-x11-nightly proot-distro pulseaudio xorg-xrandr netcat-openbsd
 
 # Create Termux:API Bridge Script
-cat > ~/termux-api-bridge.sh << 'EOF'
+cat > ~/run-api-bridge.sh << 'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 IN_PORT=8888
 OUT_PORT=8889
@@ -26,7 +26,7 @@ while true; do
     nc -l -p $IN_PORT | bash 2>&1 | nc -l -p $OUT_PORT
 done
 EOF
-chmod +x ~/termux-api-bridge.sh
+chmod +x ~/run-api-bridge.sh
 
 # =============================================
 #  Step 2/3: Ubuntu Distro Setup
@@ -128,8 +128,8 @@ pactl load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymou
 # Start Termux:API Bridge
 echo ">>> Starting Termux:API Bridge..."
 termux-wake-lock
-pkill -f termux-api-bridge.sh 2>/dev/null
-bash ~/termux-api-bridge.sh > /dev/null 2>&1 &
+pkill -f run-api-bridge.sh 2>/dev/null
+bash ~/run-api-bridge.sh > /dev/null 2>&1 &
 
 # Start X11
 echo ">>> Starting Termux-X11..."
@@ -206,7 +206,7 @@ else
 fi
 
 # Kill Termux:API Bridge
-pkill -f termux-api-bridge.sh 2>/dev/null && echo "  [x] termux-api bridge killed"
+pkill -f run-api-bridge.sh 2>/dev/null && echo "  [x] termux-api bridge killed"
 
 # Release wake lock
 termux-wake-unlock 2>/dev/null && echo "  [x] wake lock released"
@@ -294,17 +294,17 @@ cat > ~/.shortcuts/update-droiddesk.sh << 'UPDATEEOF'
 #!/data/data/com.termux/files/usr/bin/bash
 echo ">>> Updating DroidDesk..."
 cd ~
-rm -f proot-xfce-setup.sh.new
-curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/proot-xfce-setup.sh?v=$(date +%s)" -o proot-xfce-setup.sh.new
+rm -f setup-proot-xfce.sh.new
+curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/setup-proot-xfce.sh?v=$(date +%s)" -o setup-proot-xfce.sh.new
 
-if [ -s proot-xfce-setup.sh.new ]; then
-    chmod +x proot-xfce-setup.sh.new
-    mv -f proot-xfce-setup.sh.new proot-xfce-setup.sh
+if [ -s setup-proot-xfce.sh.new ]; then
+    chmod +x setup-proot-xfce.sh.new
+    mv -f setup-proot-xfce.sh.new setup-proot-xfce.sh
     echo ">>> Update successful. Running setup..."
-    ./proot-xfce-setup.sh
+    ./setup-proot-xfce.sh
 else
     echo "ERROR: Download failed. Check your internet connection."
-    rm -f proot-xfce-setup.sh.new
+    rm -f setup-proot-xfce.sh.new
     exit 1
 fi
 UPDATEEOF
