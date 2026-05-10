@@ -127,6 +127,7 @@ pactl load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymou
 
 # Start Termux:API Bridge
 echo ">>> Starting Termux:API Bridge..."
+termux-wake-lock
 pkill -f termux-api-bridge.sh 2>/dev/null
 bash ~/termux-api-bridge.sh > /dev/null 2>&1 &
 
@@ -187,22 +188,28 @@ cat > ~/.shortcuts/kill-x11.sh << 'KILLX11EOF'
 echo ">>> Stopping X11 and PulseAudio..."
 
 # Kill X11 server
-if pkill -f "termux-x11" 2>/dev/null; then
+if pkill -f "termux-x11" 2>/dev/null || pkill -f "termux.x11" 2>/dev/null; then
     echo "  [x] termux-x11 killed"
 else
     echo "  [-] termux-x11 not running"
 fi
 
+# Force kill X11 if still running
+pkill -9 -f "termux-x11" 2>/dev/null || true
+pkill -9 -f "termux.x11" 2>/dev/null || true
+
 # Kill PulseAudio
-if pkill "pulseaudio" 2>/dev/null; then
+if pulseaudio --kill 2>/dev/null; then
     echo "  [x] pulseaudio killed"
-    sleep 1
 else
-    echo "  [-] pulseaudio not running"
+    pkill -9 "pulseaudio" 2>/dev/null && echo "  [x] pulseaudio force-killed" || echo "  [-] pulseaudio not running"
 fi
 
 # Kill Termux:API Bridge
 pkill -f termux-api-bridge.sh 2>/dev/null && echo "  [x] termux-api bridge killed"
+
+# Release wake lock
+termux-wake-unlock 2>/dev/null && echo "  [x] wake lock released"
 
 # Cleanup stale files (Termux tmp, not /tmp)
 TERMUX_TMP="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
@@ -245,17 +252,21 @@ for proc in \$XFCE_PROCS; do
 done
 pkill -9 -f "proot.*installed-rootfs/${DISTRO}" 2>/dev/null || true
 
-# Clean temp and artifacts inside rootfs (preserves all config files)
+# Aggressive Inner Cleanup (Handles residues even if host cleanup fails)
+echo "  [*] Performing deep residue cleanup inside proot..."
+proot-distro login ${DISTRO} -- bash -c "rm -rf /tmp/xdg-* /tmp/dbus-* /tmp/.xfsm-ICE-* /tmp/.X11-unix/* /home/${PROOT_USER}/.cache/sessions/* /home/${PROOT_USER}/.ICEauthority /home/${PROOT_USER}/.Xauthority 2>/dev/null"
+
+# Clean temp and session cache inside rootfs from host side (Double Layer)
 ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${DISTRO}"
 if [ -d "\$ROOTFS" ]; then
-    echo "  [*] Cleaning temp and session cache..."
+    echo "  [*] Cleaning host-side mounts and temp files..."
     rm -rf "\$ROOTFS/tmp/.X"* 2>/dev/null
     rm -rf "\$ROOTFS/tmp/.xfsm-ICE-"* 2>/dev/null
     rm -rf "\$ROOTFS/tmp/dbus-"* 2>/dev/null
     rm -rf "\$ROOTFS/tmp/ssh-"* 2>/dev/null
     rm -f "\$ROOTFS/tmp/.dbus"* 2>/dev/null
-    rm -rf "\$ROOTFS/tmp/xdg-${PROOT_USER}" 2>/dev/null
-    
+    rm -rf "\$ROOTFS/tmp/xdg-"* 2>/dev/null
+
     # Clean corrupt XFCE sessions and authority files
     rm -rf "\$ROOTFS/home/${PROOT_USER}/.cache/sessions/"* 2>/dev/null
     rm -f "\$ROOTFS/home/${PROOT_USER}/.ICEauthority" 2>/dev/null
@@ -274,6 +285,7 @@ bash ~/.shortcuts/kill-proot.sh
 echo ""
 bash ~/.shortcuts/kill-x11.sh
 echo ""
+termux-wake-unlock 2>/dev/null
 echo ">>> All DroidDesk services stopped."
 KILLALLEOF
 

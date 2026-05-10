@@ -652,14 +652,16 @@ LAUNCHEREOF
     cat > ~/stop-linux.sh << STOPEOF
 #!/data/data/com.termux/files/usr/bin/bash
 echo "Stopping all sessions..."
-pkill -9 -f "termux.x11" 2>/dev/null
+pkill -f "termux-x11" 2>/dev/null || pkill -f "termux.x11" 2>/dev/null
+pkill -9 -f "termux-x11" 2>/dev/null || true
+pkill -9 -f "termux.x11" 2>/dev/null || true
 vncserver -kill :1 2>/dev/null
 pkill -9 -f "Xvnc" 2>/dev/null
-pkill -9 -f "pulseaudio" 2>/dev/null
-${KILL_CMD}
+pulseaudio --kill 2>/dev/null || pkill -9 pulseaudio
+\${KILL_CMD}
 pkill -9 -f "dbus" 2>/dev/null
 pkill -f termux-api-bridge.sh 2>/dev/null
-termux-wake-unlock
+termux-wake-unlock 2>/dev/null
 rm -f /tmp/.X1-lock /tmp/.X11-unix/X1 2>/dev/null
 echo "Done."
 STOPEOF
