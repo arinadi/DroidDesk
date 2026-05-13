@@ -1,6 +1,6 @@
 #!/bin/bash
 # 📱 DroidDesk XFCE Pre-config Applier
-# Focus: Panel (64px), WM (Center/xhdpi), GTK Settings (DPI 140, Large Cursor)
+# Focus: Panel (64px), WM (Yaru-dark), GTK Settings (DPI 140, Large Cursor)
 
 # 1. Ensure directories exist
 CONF_DIR="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml"
@@ -43,12 +43,12 @@ cat <<EOF > "$CONF_DIR/xfce4-panel.xml"
 </channel>
 EOF
 
-# 3. Apply Window Manager Config (Default-xhdpi theme, centered placement)
+# 3. Apply Window Manager Config (Yaru-dark theme, centered placement)
 cat <<EOF > "$CONF_DIR/xfwm4.xml"
 <?xml version="1.1" encoding="UTF-8"?>
 <channel name="xfwm4" version="1.0">
   <property name="general" type="empty">
-    <property name="theme" type="string" value="Default-xhdpi"/>
+    <property name="theme" type="string" value="Yaru-dark"/>
     <property name="button_layout" type="string" value="O|SHMC"/>
     <property name="placement_mode" type="string" value="center"/>
     <property name="use_compositing" type="bool" value="true"/>
@@ -59,10 +59,14 @@ cat <<EOF > "$CONF_DIR/xfwm4.xml"
 </channel>
 EOF
 
-# 4. Apply Settings (DPI 140, Large Cursor 64px)
+# 4. Apply Settings (DPI 140, Large Cursor 64px, Yaru-dark GTK, Papirus-Dark Icons)
 cat <<EOF > "$CONF_DIR/xsettings.xml"
 <?xml version="1.1" encoding="UTF-8"?>
 <channel name="xsettings" version="1.0">
+  <property name="Net" type="empty">
+    <property name="ThemeName" type="string" value="Yaru-dark"/>
+    <property name="IconThemeName" type="string" value="Papirus-Dark"/>
+  </property>
   <property name="Xft" type="empty">
     <property name="DPI" type="int" value="140"/>
   </property>
@@ -73,6 +77,7 @@ cat <<EOF > "$CONF_DIR/xsettings.xml"
   </property>
   <property name="Xfce" type="empty">
     <property name="LastCustomDPI" type="int" value="140"/>
+    <property name="SyncThemes" type="bool" value="true"/>
   </property>
 </channel>
 EOF
