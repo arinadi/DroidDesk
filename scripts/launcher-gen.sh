@@ -11,7 +11,9 @@ for f in start-x11.sh start-xfce.sh kill-x11.sh kill-proot.sh kill-all.sh update
     ln -sf ~/.shortcuts/"${f}" ~/"${f}"
 done
 
-# Legacy symlink
+# Legacy shortcut (Termux:Widget reads ~/.shortcuts/)
+ln -sf update.sh ~/.shortcuts/update-droiddesk.sh 2>/dev/null || true
+# Legacy symlink in home dir
 ln -sf ~/update.sh ~/update-droiddesk.sh 2>/dev/null || true
 
 echo ">>> Launchers installed."
