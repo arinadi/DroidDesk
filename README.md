@@ -7,23 +7,21 @@
 
 ## ⚡ Quick Start
 
-Download and run the setup script directly from GitHub in Termux:
+Install everything with one command in Termux:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/setup-proot-xfce.sh -o ~/setup-proot-xfce.sh
-chmod +x ~/setup-proot-xfce.sh
-bash ~/setup-proot-xfce.sh
+curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh | bash
 ```
 
 > [!NOTE]
-> This script installs XFCE inside an Ubuntu proot and creates specialized launcher scripts for Termux:X11 and PulseAudio.
+> This installs XFCE inside an Ubuntu proot, applies a mobile-optimized theme, and creates launcher scripts for Termux:X11 and PulseAudio. Run the same command again to update.
 
 ## 📦 Install Extra Apps (TUI)
 
-After the main installation, you can install Browsers (Firefox), AI Tools, and Development IDEs using the interactive package installer:
+After the main installation, install Browsers (Firefox), AI Tools, and Development IDEs using the interactive package installer:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/install-tui-packages.sh | bash
+bash ~/.droiddesk/scripts/tui-installer.sh
 ```
 
 ---
@@ -50,24 +48,24 @@ While you can install XFCE natively in Termux, running the **entire desktop insi
 - 🛡️ **Better App Stability:** Apps run exactly as they would on a standard desktop. Firefox ESR, for example, handles complex JavaScript and Google logins perfectly inside proot.
 - 🐧 **Why Ubuntu?** Ubuntu provides superior binary support and PPA availability for ARM64 compared to Debian or Fedora ARM ports in proot environments.
 
-## 🛠️ What this script does
+## 🛠️ What the bootstrap does
 
 - Installs Termux-required packages (`x11-repo`, `termux-x11-nightly`, `proot-distro`).
-- Sets up an **Ubuntu** proot distro.
-- Installs XFCE and basic GUI tooling (thunar, settings, audio utils).
-- **Android Storage Integration:** Automatically mounts your phone's internal storage to `/sdcard` and creates symlinks in the Ubuntu home directory (`~/Downloads`, `~/Pictures`, `~/Android_Internal`).
-- **Android Hardware Control:** Built-in bridge for **Termux:API**. Control your phone's battery, notifications, and sensors directly from the XFCE terminal.
-- Generates 6 focused launcher scripts in `~/.shortcuts/` (with symlinks to `~/`):
+- Sets up an **Ubuntu** proot distro with XFCE and basic GUI tooling.
+- **Android Storage Integration:** Mounts your phone's internal storage to `/sdcard` and creates symlinks (`~/Downloads`, `~/Pictures`, `~/Android_Internal`).
+- **Android Hardware Control:** Built-in hardened bridge for **Termux:API**. Control your phone's battery, notifications, and sensors from XFCE.
+- **Mobile-Optimized Theme:** Auto-applies Yaru-dark theme, 64px panel, DPI 140, large cursor, and black wallpaper.
+- Generates 6 launcher scripts in `~/.shortcuts/` (with symlinks to `~/`):
   - 🟢 `start-x11.sh` — Start Termux:X11 and PulseAudio (Host).
   - 🟢 `start-xfce.sh` — Start XFCE session (Proot).
   - 🔴 `kill-x11.sh` — Stop X11 and PulseAudio (cleans sockets).
   - 🔴 `kill-proot.sh` — Stop all XFCE processes and clean session cache.
   - 🔴 `kill-all.sh` — Stop everything with one command.
-  - 🔄 `update-droiddesk.sh` — Safely update these scripts from GitHub.
+  - 🔄 `update.sh` — Update DroidDesk from GitHub.
 
 ## 🧩 The Minimalist Package Philosophy
 
-To keep the environment lightning-fast and prevent storage bloat, this script avoids "kitchen-sink" meta-packages. Instead, we use a highly curated, modular list:
+To keep the environment lightning-fast and prevent storage bloat, DroidDesk avoids "kitchen-sink" meta-packages. Instead, we use a highly curated, modular list:
 
 **1. Termux Host Packages:**
 - `termux-setup-storage`: Grants Termux access to your phone's internal memory.
@@ -90,15 +88,6 @@ To keep the environment lightning-fast and prevent storage bloat, this script av
 - **Termux:X11** Android app (Nightly release)
 - **Termux:API** Android app (installed from F-Droid)
 - **Termux:Widget** (Optional, but recommended for 1-tap launchers)
-
-## 🎨 Personalization & Pre-config
-DroidDesk comes with an optimized XFCE configuration (64px panel, high DPI, black wallpaper) designed for mobile screens.
-
-To apply the pre-set theme inside your Proot environment:
-```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/apply-xfce-config.sh | bash
-```
-*Note: Restart your XFCE session after applying.*
 
 ## 🛑 CRITICAL: Android 12+ Background Restrictions (Signal 9 Error)
 
@@ -160,15 +149,18 @@ You can control your phone directly from the Ubuntu terminal using the `tapi` br
 - The session runs via `dbus-launch --exit-with-session startxfce4`.
 - If display is unstable, try adding `-legacy-drawing` or `-force-bgra` to the `start-x11.sh` script.
 
-## 🔄 How to Safely Update Scripts
+## 🔄 How to Update
 
-To update your launcher and kill scripts without losing your Linux installation or personal files, run the update script:
+Run the same install command — it detects your existing installation and offers to update:
 
 ```bash
-bash ~/update-droiddesk.sh
+curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh | bash
 ```
 
-This will download the newest scripts, update missing packages, and overwrite your old shortcuts automatically.
+Or use the launcher:
+```bash
+bash ~/update.sh
+```
 
 ## 🧹 Cleanup Tips (Nuclear Option)
 

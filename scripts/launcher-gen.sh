@@ -1,0 +1,17 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+echo ">>> Installing launchers..."
+DROIDDESK_DIR="$HOME/.droiddesk"
+mkdir -p ~/.shortcuts
+
+for f in start-x11.sh start-xfce.sh kill-x11.sh kill-proot.sh kill-all.sh update.sh; do
+    cp "${DROIDDESK_DIR}/launchers/${f}" ~/.shortcuts/"${f}"
+    chmod +x ~/.shortcuts/"${f}"
+    ln -sf ~/.shortcuts/"${f}" ~/"${f}"
+done
+
+# Legacy symlink
+ln -sf ~/update.sh ~/update-droiddesk.sh 2>/dev/null || true
+
+echo ">>> Launchers installed."

@@ -1,4 +1,6 @@
-# DroidDesk
+# DroidDesk — Native Termux Setup
+
+> **Note:** This is a separate project from the main DroidDesk Proot XFCE installer. This script (`setup-termux-native.sh`) supports multiple desktop environments (XFCE4/LXQt/MATE/KDE), GPU acceleration, and VNC. For the simpler proot-only installer, see [README.md](README.md).
 
 Run a full Linux desktop on any Android phone. Not a terminal. Not an emulator. A complete desktop environment with direct kernel access -- VS Code, Blender, Metasploit, local AI, all of it.
 
