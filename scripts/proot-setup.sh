@@ -2,17 +2,17 @@
 set -euo pipefail
 
 # proot-setup.sh — Install DroidDesk proot from Docker image
-# Uses pre-built OCI image for fast install (~30s vs 5-10min apt-get)
 
 IMAGE="ghcr.io/arinadi/droiddesk:latest"
 CONTAINER="droiddesk"
-ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/${CONTAINER}"
 DROIDDESK_DIR="${HOME}/.droiddesk"
 
 echo ">>> Setting up DroidDesk proot..."
 
-if [ -d "$ROOTFS" ]; then
-    echo "  [*] Existing container found. Backing up user data..."
+# Check if container already exists
+if proot-distro list 2>/dev/null | grep -q "$CONTAINER"; then
+    echo "  [*] Container '$CONTAINER' already exists."
+    echo "  [*] Backing up user data..."
     bash "${DROIDDESK_DIR}/scripts/proot-backup.sh"
     proot-distro remove "$CONTAINER"
 fi
