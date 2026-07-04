@@ -48,6 +48,7 @@ Connect a monitor and it's a Linux PC. Unplug and your entire setup comes with y
 - [Termux](https://f-droid.org/en/packages/com.termux/) (from F-Droid, NOT Play Store)
 - [Termux:X11](https://github.com/termux/termux-x11/releases/tag/nightly) app
 - [Termux:API](https://f-droid.org/en/packages/com.termux.api/) app (optional)
+- [Termux:Widget](https://f-droid.org/en/packages/com.termux.widget/) app (optional, for home screen shortcuts)
 
 ### Install
 
@@ -68,6 +69,31 @@ bash ~/start-xfce.sh   # Start desktop
 ```bash
 bash ~/kill-all.sh     # Stop everything
 ```
+
+---
+
+## 📱 Termux:Widget Support
+
+DroidDesk auto-creates home screen shortcuts. Install [Termux:Widget](https://f-droid.org/en/packages/com.termux.widget/) to use them.
+
+### Setup
+
+1. Install Termux:Widget from F-Droid
+2. Add Termux:Widget to your home screen
+3. Select `~/.shortcuts/` as the shortcuts folder
+
+### Available Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| 🟢 start-x11.sh | Start X11 + PulseAudio |
+| 🟢 start-xfce.sh | Start XFCE desktop |
+| 🔴 kill-all.sh | Stop everything |
+| 🔴 kill-proot.sh | Stop desktop only |
+| 🔴 kill-x11.sh | Stop X11/audio only |
+| 🔄 update.sh | Update DroidDesk |
+
+One tap to start, one tap to stop.
 
 ---
 
@@ -112,6 +138,8 @@ Or re-run install — it detects existing installation and offers to update.
 
 ## 🏗️ How It Works
 
+### Image Architecture
+
 ```
 ┌─────────────────────────────────────┐
 │  USER LAYER (mutable)               │  ← Your packages, configs, data
@@ -122,10 +150,45 @@ Or re-run install — it detects existing installation and offers to update.
 └─────────────────────────────────────┘
 ```
 
+### Base Image
+
+DroidDesk uses the **official Ubuntu 24.04 Docker image** (`ubuntu:24.04`) as its base. This ensures:
+- Standard glibc compatibility with all Linux software
+- Regular security updates from Canonical
+- ARM64 native support for Android devices
+- Full apt package repository access
+
 - **Install:** Pull pre-built image from GHCR (~30 seconds)
 - **Update scripts:** Download new launchers from GitHub
 - **Update packages:** `apt-get upgrade` inside proot
 - **Major upgrade:** Auto backup/restore preserves your data
+
+---
+
+## ⚠️ Termux Limitations
+
+DroidDesk runs on top of Termux, which has inherent limitations:
+
+| Limitation | Impact | Workaround |
+|-----------|--------|------------|
+| **No root access** | Cannot modify `/system` | proot provides root-like environment |
+| **No kernel modules** | Cannot load drivers | Uses proot for syscall translation |
+| **No systemd** | No service management | Start services manually |
+| **No native Docker** | Cannot run containers | Use proot-distro instead |
+| **ARM64 only** | No x86 emulation | QEMU user-mode for cross-arch |
+| **No GPU acceleration** | Limited OpenGL | Mesa software rendering |
+| **Battery optimization** | Android kills background | Use Termux:WakeLock |
+| **Storage restrictions** | Android 11+ scoped storage | Grant via `termux-setup-storage` |
+| **No native X11** | No display server | Use Termux:X11 app |
+| **No PulseAudio daemon** | No system audio | Use TCP audio forwarding |
+
+### What DroidDesk Cannot Do
+
+- ❌ Run Docker containers (uses proot instead)
+- ❌ Access GPU hardware directly (software rendering only)
+- ❌ Run systemd services (manual process management)
+- ❌ Survive Android's Phantom Process Killer (without Developer Options fix)
+- ❌ Run x86 software natively (ARM64 only, QEMU for cross-arch)
 
 ---
 
