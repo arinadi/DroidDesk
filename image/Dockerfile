@@ -59,6 +59,11 @@ COPY configs/xfwm4.xml /home/admin/.config/xfce4/xfconf/xfce-perchannel-xml/
 COPY configs/xsettings.xml /home/admin/.config/xfce4/xfconf/xfce-perchannel-xml/
 COPY configs/xfce4-desktop.xml /home/admin/.config/xfce4/xfconf/xfce-perchannel-xml/
 
+# Dark theme overrides
+RUN mkdir -p /home/admin/.config/gtk-3.0 /home/admin/.config/xfce4/terminal
+COPY configs/gtk.css /home/admin/.config/gtk-3.0/gtk.css
+COPY configs/terminalrc /home/admin/.config/xfce4/terminal/terminalrc
+
 # Fix ownership
 RUN chown -R admin:admin /home/admin
 

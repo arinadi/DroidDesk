@@ -1,0 +1,26 @@
+# Dark theme overrides for AMOLED screens
+# Place in ~/.config/gtk-3.0/gtk.css
+
+/* Dark scrollbar */
+scrollbar {
+    background-color: rgba(30, 30, 30, 0.8);
+    border-radius: 8px;
+}
+scrollbar slider {
+    background-color: rgba(100, 100, 100, 0.6);
+    border-radius: 8px;
+    min-width: 6px;
+    min-height: 6px;
+}
+
+/* Dark selection */
+selection {
+    background-color: #3a7bd5;
+    color: white;
+}
+
+/* Dark tooltip */
+tooltip {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}

@@ -119,3 +119,36 @@ cat <<EOF > "$CONF_DIR/xfce4-desktop.xml"
 EOF
 
 echo ">>> DroidDesk pre-config applied. Please restart XFCE session."
+
+# 6. Apply Dark GTK Overrides (scrollbar, selection, tooltip)
+GTK_DIR="$HOME/.config/gtk-3.0"
+mkdir -p "$GTK_DIR"
+cat > "$GTK_DIR/gtk.css" << 'CSSEOF'
+/* Dark scrollbar */
+scrollbar { background-color: rgba(30,30,30,0.8); border-radius: 8px; }
+scrollbar slider { background-color: rgba(100,100,100,0.6); border-radius: 8px; min-width: 6px; }
+/* Dark selection */
+selection { background-color: #3a7bd5; color: white; }
+/* Dark tooltip */
+tooltip { background-color: #1e1e1e; color: #e0e0e0; }
+CSSEOF
+
+# 7. Apply Dark Terminal Profile
+TERM_DIR="$HOME/.config/xfce4/terminal"
+mkdir -p "$TERM_DIR"
+cat > "$TERM_DIR/terminalrc" << 'TERMLEOF'
+[Configuration]
+FontName=Monospace 12
+ColorForeground=#e0e0e0
+ColorBackground=#1a1a2e
+ColorCursor=#e0e0e0
+ColorSelection=#3a7bd5
+ColorSelectionForeground=#ffffff
+ColorBold=#e0e0e0
+BackgroundMode=0
+BackgroundDarkness=0.95
+MiscMouseAutohide=TRUE
+MiscMenubarDefault=FALSE
+TERMLEOF
+
+echo ">>> Dark theme overrides applied."
