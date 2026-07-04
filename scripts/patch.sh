@@ -1,23 +1,52 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-# patch.sh — Install optional packages into DroidDesk proot
+# patch.sh — Install optional software into DroidDesk proot
 # Interactive (no args) or CLI (with flags)
+# Run: bash ~/.droiddesk/scripts/patch.sh
+#   or: bash ~/.droiddesk/scripts/patch.sh --firefox --code --nodejs
 
 CONTAINER="droiddesk"
 
 # === Available patches ===
+# Format: key="name|install command"
 declare -A PATCHES
+
+# Browsers
 PATCHES[firefox]="Firefox ESR|apt-get install -y firefox-esr"
+PATCHES[chromium]="Chromium Browser|apt-get install -y chromium-browser"
+
+# Development
 PATCHES[code]="VS Code (code-server)|curl -fsSL https://code-server.dev/install.sh | sh"
+PATCHES[geany]="Geany (Lightweight IDE)|apt-get install -y geany"
 PATCHES[node]="Node.js 24|curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && apt-get install -y nodejs"
 PATCHES[python]="Python 3 + pip + venv|apt-get install -y python3-pip python3-venv"
-PATCHES[ollama]="Ollama (local LLM)|curl -fsSL https://ollama.com/install.sh | sh"
-PATCHES[docker]="Docker (rootless)|curl -fsSL https://get.docker.com | sh"
-PATCHES[zsh]="Zsh + Oh My Zsh|apt-get install -y zsh && su - admin -c 'sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" "" --unattended'"
-PATCHES[neovim]="Neovim|apt-get install -y neovim"
-PATCHES[htop]="htop + tmux|apt-get install -y htop tmux"
+PATCHES[build]="Build Essential (gcc/make/g++)|apt-get install -y build-essential"
+PATCHES[cmake]="CMake Build System|apt-get install -y cmake"
 PATCHES[git]="Git + GitHub CLI|apt-get install -y git gh"
+PATCHES[openssh]="OpenSSH Client|apt-get install -y openssh-client"
+
+# AI
+PATCHES[ollama]="Ollama (local LLM)|curl -fsSL https://ollama.com/install.sh | sh"
+
+# System
+PATCHES[htop]="htop + tmux|apt-get install -y htop tmux"
+PATCHES[zsh]="Zsh + Oh My Zsh|apt-get install -y zsh && su - admin -c 'sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" \"\" --unattended'"
+PATCHES[neovim]="Neovim|apt-get install -y neovim"
+PATCHES[nala]="Nala (Modern APT)|apt-get install -y nala"
+PATCHES[docker]="Docker (rootless)|curl -fsSL https://get.docker.com | sh"
+
+# CLI Tools
+PATCHES[jq]="JSON Processor|apt-get install -y jq"
+PATCHES[tree]="Directory Tree|apt-get install -y tree"
+PATCHES[ripgrep]="Fast Grep (rg)|apt-get install -y ripgrep"
+PATCHES[sqlite3]="SQLite CLI|apt-get install -y sqlite3"
+PATCHES[zip]="ZIP/UNZIP Tools|apt-get install -y zip unzip"
+
+# GUI Apps
+PATCHES[viewnior]="Image Viewer (Viewnior)|apt-get install -y viewnior"
+PATCHES[xarchiver]="Archive Manager|apt-get install -y xarchiver"
+PATCHES[galculator]="Calculator (Galculator)|apt-get install -y galculator"
 
 # === Parse args ===
 SELECTED=()
@@ -27,17 +56,31 @@ if [ $# -gt 0 ]; then
     INTERACTIVE=false
     for arg in "$@"; do
         case "$arg" in
-            --firefox)  SELECTED+=("firefox") ;;
-            --code)     SELECTED+=("code") ;;
-            --node)     SELECTED+=("node") ;;
-            --python)   SELECTED+=("python") ;;
-            --ollama)   SELECTED+=("ollama") ;;
-            --docker)   SELECTED+=("docker") ;;
-            --zsh)      SELECTED+=("zsh") ;;
-            --neovim)   SELECTED+=("neovim") ;;
-            --htop)     SELECTED+=("htop") ;;
-            --git)      SELECTED+=("git") ;;
-            --all)      mapfile -t SELECTED < <(echo "${!PATCHES[@]}" | tr ' ' '\n') ;;
+            --firefox)    SELECTED+=("firefox") ;;
+            --chromium)   SELECTED+=("chromium") ;;
+            --code)       SELECTED+=("code") ;;
+            --geany)      SELECTED+=("geany") ;;
+            --node)       SELECTED+=("node") ;;
+            --python)     SELECTED+=("python") ;;
+            --build)      SELECTED+=("build") ;;
+            --cmake)      SELECTED+=("cmake") ;;
+            --git)        SELECTED+=("git") ;;
+            --openssh)    SELECTED+=("openssh") ;;
+            --ollama)     SELECTED+=("ollama") ;;
+            --htop)       SELECTED+=("htop") ;;
+            --zsh)        SELECTED+=("zsh") ;;
+            --neovim)     SELECTED+=("neovim") ;;
+            --nala)       SELECTED+=("nala") ;;
+            --docker)     SELECTED+=("docker") ;;
+            --jq)         SELECTED+=("jq") ;;
+            --tree)       SELECTED+=("tree") ;;
+            --ripgrep)    SELECTED+=("ripgrep") ;;
+            --sqlite3)    SELECTED+=("sqlite3") ;;
+            --zip)        SELECTED+=("zip") ;;
+            --viewnior)   SELECTED+=("viewnior") ;;
+            --xarchiver)  SELECTED+=("xarchiver") ;;
+            --galculator) SELECTED+=("galculator") ;;
+            --all)        mapfile -t SELECTED < <(echo "${!PATCHES[@]}" | tr ' ' '\n') ;;
             --list)
                 echo "Available patches:"
                 for key in $(echo "${!PATCHES[@]}" | tr ' ' '\n' | sort); do
@@ -61,8 +104,8 @@ if $INTERACTIVE; then
 
     for key in $(echo "${!PATCHES[@]}" | tr ' ' '\n' | sort); do
         IFS='|' read -r desc cmd <<< "${PATCHES[$key]}"
-        printf "  %-12s %s" "[$key]" "$desc"
-        read -rp "Install? [y/N] " ans
+        printf "  %-14s %s" "[$key]" "$desc"
+        read -rp " Install? [y/N] " ans
         if [[ "$ans" =~ ^[Yy]$ ]]; then
             SELECTED+=("$key")
         fi

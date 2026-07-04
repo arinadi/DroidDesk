@@ -32,7 +32,16 @@ RUN apt-get update && \
         libgl1 \
         mesa-utils \
         netcat-openbsd \
-        python3-tk && \
+        python3-tk \
+        curl \
+        wget \
+        zip \
+        unzip \
+        jq \
+        tree \
+        sqlite3 \
+        less \
+        locales && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -52,6 +61,11 @@ COPY configs/xfce4-desktop.xml /home/admin/.config/xfce4/xfconf/xfce-perchannel-
 
 # Fix ownership
 RUN chown -R admin:admin /home/admin
+
+# Set locale
+RUN sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 # Default shell
 CMD ["/bin/bash"]

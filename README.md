@@ -1,176 +1,174 @@
 <div align="center">
-  <h1>📱 DroidDesk Proot XFCE</h1>
-  <p>A portable Linux environment for Android designed to overcome mobile OS limitations.</p>
+  <h1>📱 DroidDesk</h1>
+  <p><strong>Your phone is a Linux workstation.</strong></p>
+  <p>Full desktop environment with XFCE, Firefox, VS Code, and AI tools — running natively on Android.</p>
 </div>
 
 ---
 
-## ⚡ Quick Start
-
-Install everything with one command in Termux:
+## ⚡ One Command Install
 
 ```bash
 curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh | bash
 ```
 
-> [!NOTE]
-> This installs XFCE inside an Ubuntu proot, applies a mobile-optimized theme, and creates launcher scripts for Termux:X11 and PulseAudio. Run the same command again to update.
+That's it. Installs XFCE desktop, mobile-optimized theme, and all launchers. **Under 30 seconds.**
 
-## 📦 Install Extra Apps (TUI)
+---
 
-After the main installation, install Browsers (Firefox), AI Tools, and Development IDEs using the interactive package installer:
+## 💡 Why DroidDesk?
+
+### Your Phone, Your Desktop
+
+Connect a monitor and it's a Linux PC. Unplug and your entire setup comes with you.
+
+- 🖥️ **Full Desktop** — XFCE4 with mobile-optimized 64px panel, high DPI, dark theme
+- 🌐 **Real Browsers** — Firefox ESR that doesn't sleep when screen is off
+- 💻 **Real IDE** — VS Code, Geany, Neovim with native Node.js, Python, Git
+- 🤖 **Local AI** — Ollama runs LLMs offline, 5+ tokens/sec
+- 📱 **Android Integration** — Control battery, notifications, camera from Linux terminal
+
+### Overcomes Android's Biggest Limitations
+
+| Problem | DroidDesk Solution |
+|---------|-------------------|
+| Chrome sleeps background tabs | Full desktop browser in proot — stays alive |
+| No glibc apps | Ubuntu proot with standard glibc |
+| Can't run VS Code | Native Linux VS Code with extensions |
+| Background processes killed | Termux:WakeLock keeps sessions alive |
+| No developer tools | Full gcc, Node.js, Python, Docker |
+
+---
+
+## 🚀 Getting Started
+
+### Requirements
+
+- Android phone (ARM64)
+- [Termux](https://f-droid.org/en/packages/com.termux/) (from F-Droid, NOT Play Store)
+- [Termux:X11](https://github.com/termux/termux-x11/releases/tag/nightly) app
+- [Termux:API](https://f-droid.org/en/packages/com.termux.api/) app (optional)
+
+### Install
 
 ```bash
-bash ~/.droiddesk/scripts/tui-installer.sh
+curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh | bash
+```
+
+### Start
+
+```bash
+bash ~/start-x11.sh    # Start X11 server + audio
+# Open Termux:X11 app on your phone
+bash ~/start-xfce.sh   # Start desktop
+```
+
+### Stop
+
+```bash
+bash ~/kill-all.sh     # Stop everything
 ```
 
 ---
 
-## 💡 The Vision: Portable Linux Power
+## 📦 Install Software
 
-DroidDesk isn't just a terminal; it's a **complete Linux workstation in your pocket**. It solves the two biggest pain points of mobile productivity:
-
-1.  **Overcoming Android Sleep Limits:** Native Android browsers (Chrome/Firefox) aggressively sleep background tabs when the screen is off. By running a full desktop browser inside a proot Linux session, you can keep complex web apps alive.
-    *   *Usecase:* Running **Google Colab** as a background backend for a Telegram bot or long-running scripts that must not sleep.
-2.  **Native Developer Tooling:** Mobile apps are limited. DroidDesk provides standard `glibc` environments for the tools you actually use.
-    *   *Usecase:* A full **Web Development IDE** (VS Code, Geany) with native Node.js, Python, and Git, allowing you to code anywhere with a desktop-class experience.
-
-## 🧐 Why Ubuntu Proot?
-
-While you can install XFCE natively in Termux, running the **entire desktop inside a proot Ubuntu environment** offers a much smoother "daily-driver" experience:
-
-- 📦 **Standard `glibc` binaries:** Termux uses `bionic` (Android's libc), which breaks many standard Linux apps. Ubuntu proot uses standard `glibc`, ensuring maximum compatibility.
-- 📂 **Android Storage Integration:** DroidDesk bridges the gap between mobile and desktop files. It bind-mounts your internal storage to `/sdcard` and creates native-style symlinks:
-  - **`~/Downloads`** → Android's `Download` folder.
-  - **`~/Pictures`** → Android's `DCIM/Camera` folder.
-  - **`~/Android_Internal`** → Full `/sdcard` access.
-- 🔗 **Seamless App Integration:** Setting proot apps as defaults in native Termux XFCE is difficult. By putting the *entire* XFCE desktop inside Ubuntu, apps like `firefox-esr` "Just Work" as the system browser.
-- 🛡️ **Better App Stability:** Apps run exactly as they would on a standard desktop. Firefox ESR, for example, handles complex JavaScript and Google logins perfectly inside proot.
-- 🐧 **Why Ubuntu?** Ubuntu provides superior binary support and PPA availability for ARM64 compared to Debian or Fedora ARM ports in proot environments.
-
-## 🛠️ What the bootstrap does
-
-- Installs Termux-required packages (`x11-repo`, `termux-x11-nightly`, `proot-distro`).
-- Pulls pre-built **DroidDesk OCI image** from GHCR (~30s vs 5-10min apt-get). Includes Ubuntu + XFCE + mobile-optimized configs.
-- **Android Storage Integration:** Mounts your phone's internal storage to `/sdcard` and creates symlinks (`~/Downloads`, `~/Pictures`, `~/Android_Internal`).
-- **Android Hardware Control:** Built-in hardened bridge for **Termux:API**. Control your phone's battery, notifications, and sensors from XFCE.
-- **Auto backup/restore:** User packages and configs are preserved across image updates.
-- Generates 6 launcher scripts in `~/.shortcuts/` (with symlinks to `~/`):
-  - 🟢 `start-x11.sh` — Start Termux:X11 and PulseAudio (Host).
-  - 🟢 `start-xfce.sh` — Start XFCE session (Proot).
-  - 🔴 `kill-x11.sh` — Stop X11 and PulseAudio (cleans sockets).
-  - 🔴 `kill-proot.sh` — Stop all XFCE processes and clean session cache.
-  - 🔴 `kill-all.sh` — Stop everything with one command.
-  - 🔄 `update.sh` — Update DroidDesk from GitHub.
-
-## 🧩 The Minimalist Package Philosophy
-
-To keep the environment lightning-fast and prevent storage bloat, DroidDesk avoids "kitchen-sink" meta-packages. Instead, we use a highly curated, modular list:
-
-**1. Termux Host Packages:**
-- `termux-setup-storage`: Grants Termux access to your phone's internal memory.
-- `termux-api`: Enables communication between the Linux desktop and Android hardware.
-- `x11-repo` & `tur-repo`: Required for high-performance X11 and Termux User Repository packages.
-- `termux-x11-nightly`: The best, highest-performance X server for Android.
-- `proot-distro`: The safest way to manage Linux containers in Termux.
-- `pulseaudio` & `xorg-xrandr`: Essential for audio forwarding and display scaling.
-
-**2. Ubuntu Proot Packages (`--no-install-recommends`):**
-- `dbus-x11`: Crucial for Inter-Process Communication (IPC).
-- `xfce4-session`, `xfwm4`, `xfce4-panel`: Bare minimum to render a working desktop.
-- `xfdesktop4`, `thunar`, `xfce4-settings`, `xfce4-terminal`: Desktop background, file manager, GUI settings, and terminal.
-- `libgl1`, `mesa-utils`: OpenGL rendering support.
-
-## 📋 Requirements
-
-- Android phone (ARM64)
-- **Termux** (installed from F-Droid, NOT Play Store)
-- **Termux:X11** Android app (Nightly release)
-- **Termux:API** Android app (installed from F-Droid)
-- **Termux:Widget** (Optional, but recommended for 1-tap launchers)
-
-## 🛑 CRITICAL: Android 12+ Background Restrictions (Signal 9 Error)
-
-If your Termux session crashes with `[Process completed (signal 9) - press Enter]`, Android's **Phantom Process Killer** has terminated your desktop.
-
-**To fix this permanently:**
-
-- **Android 14+**: 
-  1. Enable **Developer Options** in Android Settings.
-  2. Find **"Disable child process restrictions"** and turn it **ON**.
-- **Android 12 & 13**:
-  You must use ADB (from a PC or via Wireless Debugging) to run:
-  ```bash
-  adb shell "/system/bin/device_config put activity_manager max_phantom_processes 2147483647"
-  adb shell settings put global settings_enable_monitor_phantom_procs false
-  ```
-
-> [!WARNING]
-> Without this fix, your Proot XFCE session **will** crash repeatedly during heavy usage (e.g., browsing the web).
-
-## 🚀 Usage
-
-### 📱 Termux:Widget Support
-If you have **Termux:Widget** installed, the setup script automatically makes launchers available on your homescreen! Start or stop sessions with a single tap.
-
-For terminal usage, run the symlinks in your home directory:
-
-### 1. Start the Server & Audio
-```bash
-bash ~/start-x11.sh
-```
-*(Starts Termux:X11 and PulseAudio server)*
-
-### 2. Start the Desktop
-```bash
-bash ~/start-xfce.sh
-```
-*(Launches the XFCE session inside the proot container)*
-
-### 3. Stop Everything
-```bash
-bash ~/kill-all.sh
-```
-*(Securely kills all desktop processes, audio servers, and cleans socket files)*
-
-### 📱 Android Hardware Control (Termux:API)
-You can control your phone directly from the Ubuntu terminal using the `tapi` bridge or built-in aliases:
-- `termux-battery-status` — Check phone battery level.
-- `termux-toast "Hello from Ubuntu!"` — Show a toast message on Android.
-- `termux-vibrate` — Make the phone vibrate.
-- `tapi termux-camera-info` — Get camera specifications.
-
-> [!TIP]
-> **Workflow:** Always run the `kill` scripts before starting a new session to ensure a clean slate and avoid "X server already running" or missing cursor errors!
-
-## ⚠️ Notes
-
-- `start-xfce.sh` **must** be run only after `start-x11.sh` is already running.
-- The session runs via `dbus-launch --exit-with-session startxfce4`.
-- If display is unstable, try adding `-legacy-drawing` or `-force-bgra` to the `start-x11.sh` script.
-
-## 🔄 How to Update
-
-Run the same install command — it detects your existing installation and offers to update:
+After setup, add software with the patch installer:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh | bash
+# Interactive (choose what to install)
+bash ~/.droiddesk/scripts/patch.sh
+
+# Or install specific packages
+bash ~/.droiddesk/scripts/patch.sh --firefox --code --nodejs
+
+# See all available
+bash ~/.droiddesk/scripts/patch.sh --list
 ```
 
-Or use the launcher:
+### Available Packages
+
+| Category | Packages |
+|----------|----------|
+| 🌐 Browser | Firefox ESR, Chromium |
+| 💻 IDE | VS Code, Geany, Neovim |
+| 🟢 Dev | Node.js 24, Python 3, Git, GitHub CLI, Build Essential |
+| 🤖 AI | Ollama (local LLM) |
+| 🖥️ System | htop, tmux, Zsh, Nala, Docker |
+| 🔧 CLI | jq, tree, ripgrep, SQLite, curl, wget |
+| 🎨 GUI | Viewnior, Xarchiver, Galculator |
+
+---
+
+## 🔄 Update
+
 ```bash
 bash ~/update.sh
 ```
 
-## 🧹 Cleanup Tips (Nuclear Option)
+Or re-run install — it detects existing installation and offers to update.
 
-To free up space and start completely fresh:
-1. Go to **Android Settings** > **Apps** > **Termux**.
-2. Tap **Storage** > **Clear Data**.
+---
 
-> [!CAUTION]
-> This will permanently wipe your proot distro and all Linux files inside Termux.
+## 🏗️ How It Works
+
+```
+┌─────────────────────────────────────┐
+│  USER LAYER (mutable)               │  ← Your packages, configs, data
+│  Firefox, VS Code, custom themes    │     Preserved across updates
+├─────────────────────────────────────┤
+│  IMAGE LAYER (immutable)            │  ← Pre-built from Dockerfile
+│  Ubuntu 24.04 + XFCE + base tools   │     ghcr.io/arinadi/droiddesk
+└─────────────────────────────────────┘
+```
+
+- **Install:** Pull pre-built image from GHCR (~30 seconds)
+- **Update scripts:** Download new launchers from GitHub
+- **Update packages:** `apt-get upgrade` inside proot
+- **Major upgrade:** Auto backup/restore preserves your data
+
+---
+
+## 📱 Commands
+
+| Command | Action |
+|---------|--------|
+| `bash ~/start-x11.sh` | Start X11 + PulseAudio |
+| `bash ~/start-xfce.sh` | Start XFCE desktop |
+| `bash ~/kill-all.sh` | Stop everything |
+| `bash ~/kill-proot.sh` | Stop desktop only |
+| `bash ~/kill-x11.sh` | Stop X11/audio only |
+| `bash ~/update.sh` | Update DroidDesk |
+| `bash ~/.droiddesk/scripts/patch.sh` | Install software |
+
+---
+
+## 🛑 Android 12+ Fix
+
+If Termux crashes with `signal 9`:
+
+- **Android 14+:** Developer Options → Disable child process restrictions
+- **Android 12-13:** Run via ADB:
+  ```bash
+  adb shell settings put global settings_enable_monitor_phantom_procs false
+  ```
+
+---
+
+## 📂 Project Structure
+
+```
+DroidDesk/
+├── bootstrap.sh          ← curl target (entry point)
+├── scripts/              ← setup + patch scripts
+├── launchers/            ← desktop shortcuts
+├── image/                ← Dockerfile + configs
+├── docs/                 ← documentation
+└── archive/              ← old files (git history)
+```
+
+---
 
 ## 📜 License
 
-Released under the GPLv3 license.
+GPLv3
