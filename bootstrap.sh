@@ -61,7 +61,8 @@ fi
 echo ">>> Downloading scripts..."
 for f in host-setup.sh proot-setup.sh api-bridge-setup.sh xfce-config.sh \
          launcher-gen.sh motd-setup.sh tui-installer.sh \
-         proot-backup.sh proot-restore.sh; do
+         proot-backup.sh proot-restore.sh \
+         patch-firefox.sh; do
     curl -sL "${REPO}/scripts/${f}${CACHE_BUST}" -o "${SCRIPTS_DIR}/${f}"
     chmod +x "${SCRIPTS_DIR}/${f}"
 done
