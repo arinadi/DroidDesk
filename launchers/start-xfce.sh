@@ -11,7 +11,7 @@ BINDS=""
 
 echo ">>> Starting XFCE Desktop..."
 # shellcheck disable=SC2086,SC2016
-proot-distro login ubuntu --shared-tmp $BINDS -- su - admin -c '
+proot-distro login droiddesk --shared-tmp $BINDS -- su - admin -c '
 
     # Export display and accessibility (suppress warnings)
     export DISPLAY=:0

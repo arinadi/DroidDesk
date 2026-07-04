@@ -1,0 +1,17 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<channel name="xfce4-desktop" version="1.0">
+  <property name="backdrop" type="empty">
+    <property name="screen0" type="empty">
+      <property name="monitor0" type="empty">
+        <property name="image-style" type="int" value="0"/>
+        <property name="color-style" type="int" value="0"/>
+        <property name="rgba1" type="array">
+          <value type="double" value="0.0"/>
+          <value type="double" value="0.0"/>
+          <value type="double" value="0.0"/>
+          <value type="double" value="1.0"/>
+        </property>
+      </property>
+    </property>
+  </property>
+</channel>

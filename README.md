@@ -51,10 +51,10 @@ While you can install XFCE natively in Termux, running the **entire desktop insi
 ## 🛠️ What the bootstrap does
 
 - Installs Termux-required packages (`x11-repo`, `termux-x11-nightly`, `proot-distro`).
-- Sets up an **Ubuntu** proot distro with XFCE and basic GUI tooling.
+- Pulls pre-built **DroidDesk OCI image** from GHCR (~30s vs 5-10min apt-get). Includes Ubuntu + XFCE + mobile-optimized configs.
 - **Android Storage Integration:** Mounts your phone's internal storage to `/sdcard` and creates symlinks (`~/Downloads`, `~/Pictures`, `~/Android_Internal`).
 - **Android Hardware Control:** Built-in hardened bridge for **Termux:API**. Control your phone's battery, notifications, and sensors from XFCE.
-- **Mobile-Optimized Theme:** Auto-applies Yaru-dark theme, 64px panel, DPI 140, large cursor, and black wallpaper.
+- **Auto backup/restore:** User packages and configs are preserved across image updates.
 - Generates 6 launcher scripts in `~/.shortcuts/` (with symlinks to `~/`):
   - 🟢 `start-x11.sh` — Start Termux:X11 and PulseAudio (Host).
   - 🟢 `start-xfce.sh` — Start XFCE session (Proot).
