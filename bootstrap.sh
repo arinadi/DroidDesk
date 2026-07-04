@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ══════════════════════════════════════════
-#  DroidDesk Bootstrap — curl | bash installer
+#  DroidDesk Bootstrap — curl | bash
 #  https://github.com/arinadi/DroidDesk
 # ══════════════════════════════════════════
 
@@ -12,53 +12,85 @@ SCRIPTS_DIR="${DROIDDESK_DIR}/scripts"
 LAUNCHERS_DIR="${DROIDDESK_DIR}/launchers"
 CACHE_BUST="?v=$(date +%s)"
 
-mkdir -p "$SCRIPTS_DIR" "$LAUNCHERS_DIR"
-
-# --- Version Check ---
-REMOTE_VER=$(curl -sL "${REPO}/version.txt${CACHE_BUST}" | tr -d '[:space:]')
-if [ -z "$REMOTE_VER" ]; then
-    echo "ERROR: Could not fetch version. Check your internet connection."
-    exit 1
+# --- Detect state ---
+INSTALLED=false
+if [ -f "$DROIDDESK_DIR/version.txt" ]; then
+    INSTALLED=true
+    LOCAL_VER=$(cat "$DROIDDESK_DIR/version.txt" | tr -d '[:space:]')
 fi
 
-if [ -f "$DROIDDESK_DIR/version.txt" ]; then
-    LOCAL_VER=$(cat "$DROIDDESK_DIR/version.txt" | tr -d '[:space:]')
-    echo ""
-    echo "=========================================="
-    echo " 📱 DroidDesk v${LOCAL_VER} detected"
-    echo "    Latest version: v${REMOTE_VER}"
-    echo "=========================================="
-    echo ""
-    echo "  [1] Update to v${REMOTE_VER}"
-    echo "  [2] Fresh install (wipe & reinstall)"
-    echo "  [3] Cancel"
-    echo ""
-    read -rp "  Choose [1/2/3]: " CHOICE
+REMOTE_VER=$(curl -sL "${REPO}/version.txt${CACHE_BUST}" 2>/dev/null | tr -d '[:space:]')
+if [ -z "$REMOTE_VER" ]; then
+    REMOTE_VER="unknown"
+fi
 
+# --- Menu ---
+echo ""
+echo "╔═══════════════════════════════════════╗"
+echo "║  📱 DroidDesk — Linux on Android      ║"
+echo "╠═══════════════════════════════════════╣"
+
+if $INSTALLED; then
+    echo "║  Installed: v${LOCAL_VER}                       ║"
+    echo "║  Available: v${REMOTE_VER}                       ║"
+    echo "╠═══════════════════════════════════════╣"
+    echo "║                                       ║"
+    echo "║  [1] Update                           ║"
+    echo "║  [2] Reinstall (fresh)                ║"
+    echo "║  [3] Uninstall                        ║"
+    echo "║  [4] Exit                             ║"
+    echo "║                                       ║"
+else
+    echo "║  Available: v${REMOTE_VER}                       ║"
+    echo "╠═══════════════════════════════════════╣"
+    echo "║                                       ║"
+    echo "║  [1] Install                          ║"
+    echo "║  [2] Exit                             ║"
+    echo "║                                       ║"
+fi
+echo "╚═══════════════════════════════════════╝"
+echo ""
+
+read -rp "  Choose: " CHOICE
+
+if $INSTALLED; then
     case "$CHOICE" in
-        1)
-            if [ "$REMOTE_VER" = "$LOCAL_VER" ]; then
-                echo ">>> Already up to date (v${LOCAL_VER})."
-                exit 0
-            fi
-            echo ">>> Updating: v${LOCAL_VER} → v${REMOTE_VER}"
-            ;;
-        2)
-            echo ">>> Fresh install: wiping ~/.droiddesk..."
-            rm -rf "$DROIDDESK_DIR"
-            mkdir -p "$SCRIPTS_DIR" "$LAUNCHERS_DIR"
-            ;;
-        3|*)
-            echo ">>> Cancelled."
-            exit 0
-            ;;
+        1) ACTION="update" ;;
+        2) ACTION="install" ;;
+        3) ACTION="uninstall" ;;
+        4|*) echo ">>> Bye!"; exit 0 ;;
     esac
 else
+    case "$CHOICE" in
+        1) ACTION="install" ;;
+        2|*) echo ">>> Bye!"; exit 0 ;;
+    esac
+fi
+
+# --- Uninstall ---
+if [ "$ACTION" = "uninstall" ]; then
+    echo ""
+    echo ">>> Downloading uninstall script..."
+    curl -sL "${REPO}/uninstall.sh${CACHE_BUST}" | bash
+    exit 0
+fi
+
+# --- Install / Update ---
+if [ "$ACTION" = "install" ]; then
     echo ">>> Installing DroidDesk v${REMOTE_VER}..."
+    rm -rf "$DROIDDESK_DIR"
+    mkdir -p "$SCRIPTS_DIR" "$LAUNCHERS_DIR"
+elif [ "$ACTION" = "update" ]; then
+    if [ "$REMOTE_VER" = "$LOCAL_VER" ]; then
+        echo ">>> Already up to date (v${LOCAL_VER})."
+        exit 0
+    fi
+    echo ">>> Updating: v${LOCAL_VER} → v${REMOTE_VER}"
 fi
 
 # --- Download Scripts ---
 echo ">>> Downloading scripts..."
+mkdir -p "$SCRIPTS_DIR" "$LAUNCHERS_DIR"
 for f in host-setup.sh proot-setup.sh api-bridge-setup.sh xfce-config.sh \
          launcher-gen.sh motd-setup.sh \
          proot-backup.sh proot-restore.sh \
@@ -108,16 +140,20 @@ bash "${SCRIPTS_DIR}/motd-setup.sh"
 echo "$REMOTE_VER" > "$DROIDDESK_DIR/version.txt"
 
 echo ""
-echo "=========================================="
-echo " ✅ DroidDesk v${REMOTE_VER} setup complete!"
-echo ""
-echo " Start:"
-echo "   1. bash ~/start-x11.sh"
-echo "   2. Open Termux:X11 app"
-echo "   3. bash ~/start-xfce.sh  (in new tab)"
-echo ""
-echo " Stop/Update:"
-echo "   bash ~/kill-all.sh         (stop ALL)"
-echo "   bash ~/update.sh           (update DroidDesk)"
-echo "   bash ~/.droiddesk/scripts/patch.sh  (install extra apps)"
-echo "=========================================="
+echo "╔═══════════════════════════════════════╗"
+echo "║  ✅ DroidDesk v${REMOTE_VER} complete!        ║"
+echo "╠═══════════════════════════════════════╣"
+echo "║                                       ║"
+echo "║  Start:                               ║"
+echo "║    bash ~/start-x11.sh                ║"
+echo "║    bash ~/start-xfce.sh               ║"
+echo "║                                       ║"
+echo "║  Stop:                                ║"
+echo "║    bash ~/kill-all.sh                 ║"
+echo "║                                       ║"
+echo "║  Extra apps:                          ║"
+echo "║    bash ~/.droiddesk/scripts/patch.sh ║"
+echo "║                                       ║"
+echo "║  Uninstall:                           ║"
+echo "║    bash ~/DroidDesk/uninstall.sh      ║"
+echo "╚═══════════════════════════════════════╝"
