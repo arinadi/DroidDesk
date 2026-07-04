@@ -9,7 +9,7 @@
 ## ⚡ One Command Install
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh | bash
+curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh?v=$(date +%s)" | bash
 ```
 
 That's it. Installs XFCE desktop, mobile-optimized theme, and all launchers. **Under 30 seconds.**
@@ -53,7 +53,7 @@ Connect a monitor and it's a Linux PC. Unplug and your entire setup comes with y
 ### Install
 
 ```bash
-curl -sL https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh | bash
+curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh?v=$(date +%s)" | bash
 ```
 
 ### Start
