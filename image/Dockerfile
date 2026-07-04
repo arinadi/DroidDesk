@@ -32,7 +32,8 @@ RUN apt-get update && \
         libgl1 \
         mesa-utils \
         netcat-openbsd \
-        python3-tk && \
+        python3-tk \
+        firefox-esr && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
