@@ -1,6 +1,6 @@
 #!/bin/bash
 # 📱 DroidDesk XFCE Pre-config Applier
-# Focus: Panel (64px), WM (Yaru-dark), GTK Settings (DPI 140, Large Cursor)
+# Focus: Panel (64px), WM (Yaru-dark), GTK Settings (DPI 140, Large Cursor, Large Icons)
 
 # 0. Install Themes
 if command -v apt &>/dev/null; then
@@ -13,7 +13,7 @@ fi
 CONF_DIR="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml"
 mkdir -p "$CONF_DIR"
 
-# 2. Apply Panel Config (64px bottom, dark mode, tasklist with icons only)
+# 2. Apply Panel Config (64px bottom, dark mode, 48px icons)
 cat <<EOF > "$CONF_DIR/xfce4-panel.xml"
 <?xml version="1.1" encoding="UTF-8"?>
 <channel name="xfce4-panel" version="1.0">
@@ -33,14 +33,21 @@ cat <<EOF > "$CONF_DIR/xfce4-panel.xml"
     </property>
   </property>
   <property name="plugins" type="empty">
-    <property name="plugin-1" type="string" value="applicationsmenu"/>
+    <property name="plugin-1" type="string" value="applicationsmenu">
+      <property name="show-button-title" type="bool" value="false"/>
+      <property name="button-icon" type="string" value="xfce4-panel-menu"/>
+      <property name="icon-size" type="uint" value="48"/>
+    </property>
     <property name="plugin-2" type="string" value="tasklist">
       <property name="show-labels" type="bool" value="false"/>
       <property name="grouping" type="uint" value="1"/>
+      <property name="icon-size" type="uint" value="48"/>
     </property>
     <property name="plugin-3" type="string" value="separator"><property name="expand" type="bool" value="true"/></property>
     <property name="plugin-4" type="string" value="pager"/>
-    <property name="plugin-6" type="string" value="systray"/>
+    <property name="plugin-6" type="string" value="systray">
+      <property name="icon-size" type="uint" value="32"/>
+    </property>
     <property name="plugin-8" type="string" value="clock">
       <property name="mode" type="uint" value="4"/>
       <property name="timezone" type="string" value="Asia/Jakarta"/>
@@ -66,13 +73,14 @@ cat <<EOF > "$CONF_DIR/xfwm4.xml"
 </channel>
 EOF
 
-# 4. Apply Settings (DPI 140, Large Cursor 64px, Yaru-dark GTK, Papirus-Dark Icons)
+# 4. Apply Settings (DPI 140, Large Cursor 64px, Yaru-dark GTK, Papirus-Dark Icons, Large Icon Sizes)
 cat <<EOF > "$CONF_DIR/xsettings.xml"
 <?xml version="1.1" encoding="UTF-8"?>
 <channel name="xsettings" version="1.0">
   <property name="Net" type="empty">
     <property name="ThemeName" type="string" value="Yaru-dark"/>
     <property name="IconThemeName" type="string" value="Papirus-Dark"/>
+    <property name="IconSizes" type="string" value="gtk-large=48,48:gtk-dialog=48,48:gtk-menus=48,48:gtk-toolbar=48,48"/>
   </property>
   <property name="Xft" type="empty">
     <property name="DPI" type="int" value="140"/>

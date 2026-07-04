@@ -3,6 +3,7 @@
   <property name="Net" type="empty">
     <property name="ThemeName" type="string" value="Yaru-dark"/>
     <property name="IconThemeName" type="string" value="Papirus-Dark"/>
+    <property name="IconSizes" type="string" value="gtk-large=48,48:gtk-dialog=48,48:gtk-menus=48,48:gtk-toolbar=48,48"/>
   </property>
   <property name="Xft" type="empty">
     <property name="DPI" type="int" value="140"/>
