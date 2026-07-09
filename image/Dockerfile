@@ -53,9 +53,7 @@ RUN apt-get update && \
         gpg --dearmor -o /etc/apt/keyrings/mozilla.gpg && \
     echo "deb [signed-by=/etc/apt/keyrings/mozilla.gpg] https://packages.mozilla.org/apt mozilla main" \
         > /etc/apt/sources.list.d/mozilla.list && \
-    echo 'Package: *
-Pin: origin packages.mozilla.org
-Pin-Priority: 1000' \
+    printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000\n" \
         > /etc/apt/preferences.d/mozilla && \
     apt-get update && \
     apt-get install -y --no-install-recommends firefox-esr && \
