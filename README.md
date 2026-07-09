@@ -9,7 +9,7 @@
 ## ⚡ Install
 
 ```bash
-curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh?v=$(date +%s%3N)" | bash
+curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh" | bash
 ```
 
 Installs XFCE desktop, launchers, and all built-in tools. **Under 30 seconds.**

@@ -10,7 +10,6 @@ REPO="https://raw.githubusercontent.com/arinadi/DroidDesk/main"
 DROIDDESK_DIR="$HOME/.droiddesk"
 SCRIPTS_DIR="${DROIDDESK_DIR}/scripts"
 LAUNCHERS_DIR="${DROIDDESK_DIR}/launchers"
-CACHE_BUST="?v=$(date +%s)"
 
 # --- Detect state ---
 INSTALLED=false
@@ -19,7 +18,7 @@ if [ -f "$DROIDDESK_DIR/version.txt" ]; then
     LOCAL_VER=$(cat "$DROIDDESK_DIR/version.txt" | tr -d '[:space:]')
 fi
 
-REMOTE_VER=$(curl -sL "${REPO}/version.txt${CACHE_BUST}" 2>/dev/null | tr -d '[:space:]')
+REMOTE_VER=$(curl -sL --retry 2 "${REPO}/version.txt" 2>/dev/null | tr -d '[:space:]')
 if [ -z "$REMOTE_VER" ]; then
     REMOTE_VER="unknown"
 fi
@@ -93,7 +92,7 @@ fi
 if [ "$ACTION" = "uninstall" ]; then
     echo ""
     echo ">>> Downloading uninstall script..."
-    curl -sL "${REPO}/uninstall.sh${CACHE_BUST}" | bash
+    curl -sL --retry 2 "${REPO}/uninstall.sh" | bash
     exit 0
 fi
 
@@ -113,20 +112,20 @@ for f in host-setup.sh proot-setup.sh api-bridge-setup.sh xfce-config.sh \
          launcher-gen.sh motd-setup.sh \
          proot-backup.sh proot-restore.sh \
          patch.sh; do
-    curl -sL "${REPO}/scripts/${f}${CACHE_BUST}" -o "${SCRIPTS_DIR}/${f}"
+    curl -sL --retry 2 "${REPO}/scripts/${f}" -o "${SCRIPTS_DIR}/${f}"
     chmod +x "${SCRIPTS_DIR}/${f}"
 done
 
 # --- Download Launchers ---
 echo ">>> Downloading launchers..."
 for f in start-x11.sh start-xfce.sh kill-x11.sh kill-proot.sh kill-all.sh update.sh; do
-    curl -sL "${REPO}/launchers/${f}${CACHE_BUST}" -o "${LAUNCHERS_DIR}/${f}"
+    curl -sL --retry 2 "${REPO}/launchers/${f}" -o "${LAUNCHERS_DIR}/${f}"
     chmod +x "${LAUNCHERS_DIR}/${f}"
 done
 
 # --- Download hardened API bridge ---
 echo ">>> Downloading API bridge..."
-curl -sL "${REPO}/run-api-bridge.sh${CACHE_BUST}" -o "${DROIDDESK_DIR}/run-api-bridge.sh"
+curl -sL --retry 2 "${REPO}/run-api-bridge.sh" -o "${DROIDDESK_DIR}/run-api-bridge.sh"
 chmod +x "${DROIDDESK_DIR}/run-api-bridge.sh"
 
 # --- Execute Setup ---
