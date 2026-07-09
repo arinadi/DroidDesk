@@ -34,7 +34,7 @@ Connect a monitor and it's a Linux PC. Unplug and your entire setup comes with y
 | Problem | DroidDesk Solution |
 |---------|-------------------|
 | Chrome sleeps background tabs | Full desktop browser in proot — stays alive |
-| No glibc apps | Ubuntu proot with standard glibc |
+| No glibc apps | Debian proot with standard glibc |
 | Can't run VS Code | Native Linux VS Code with extensions |
 | Background processes killed | Termux:WakeLock keeps sessions alive |
 | No developer tools | Full gcc, Node.js, Python, Docker |
@@ -148,17 +148,18 @@ Or re-run install — it detects existing installation and offers to update.
 │  VS Code, Chromium, Ollama, etc.    │     Preserved across updates
 ├─────────────────────────────────────┤
 │  IMAGE LAYER (immutable)            │  ← Pre-built from Dockerfile
-│  Ubuntu 24.04 + XFCE + 20+ tools    │     ghcr.io/arinadi/droiddesk
+│  Debian 13 + XFCE + dev tools        │     ghcr.io/arinadi/droiddesk
 └─────────────────────────────────────┘
 ```
 
 ### Base Image
 
-DroidDesk uses the **official Ubuntu 24.04 Docker image** (`ubuntu:24.04`) as its base. This ensures:
+DroidDesk uses the **official Debian 13 (Trixie) Docker image** (`debian:13`) as its base. This ensures:
 - Standard glibc compatibility with all Linux software
-- Regular security updates from Canonical
+- Regular security updates
 - ARM64 native support for Android devices
 - Full apt package repository access
+- Firefox ESR directly from Debian repos (no external APT source)
 
 - **Install:** Pull pre-built image from GHCR (~30 seconds)
 - **Update scripts:** Download new launchers from GitHub

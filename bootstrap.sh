@@ -135,7 +135,7 @@ echo ">>> Running host setup..."
 bash "${SCRIPTS_DIR}/host-setup.sh"
 
 echo ""
-echo ">>> Setting up Ubuntu proot..."
+echo ">>> Setting up Debian proot..."
 bash "${SCRIPTS_DIR}/proot-setup.sh"
 
 echo ""
