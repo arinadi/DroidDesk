@@ -14,60 +14,68 @@ RUN apt-get update && \
     apt-get upgrade -y -o Dpkg::Options::='--force-confold' && \
     rm -rf /var/lib/apt/lists/*
 
-# XFCE + DroidDesk packages (minimal, no recommends)
+# XFCE core (session, WM, panel, settings)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        sudo \
-        dbus-x11 \
-        xfce4-session \
-        xfwm4 \
-        xfce4-panel \
-        xfce4-terminal \
-        xfce4-settings \
-        xfconf \
-        thunar \
-        xfdesktop4 \
-        fonts-noto \
-        pulseaudio-utils \
-        gnome-themes-extra-data \
-        libgl1 \
-        mesa-utils \
-        netcat-openbsd \
-        python3-tk \
-        curl \
-        wget \
-        zip \
-        unzip \
-        jq \
-        tree \
-        sqlite3 \
-        less \
-        locales \
-        ca-certificates \
-        firefox-esr \
-        mousepad \
-        ristretto \
-        git \
-        golang-go \
-        python3-pip \
-        python3-venv \
-        python3-dev \
-        build-essential \
-        cmake \
-        pkg-config \
-        htop \
-        tmux \
-        openssh-client \
-        neofetch \
-        xfce4-whiskermenu-plugin \
-        xfce4-power-manager \
-        xfce4-pulseaudio-plugin \
-        xfce4-genmon-plugin \
-        inotify-tools \
-        xdotool \
-        x11-xserver-utils && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+        sudo dbus-x11 xfce4-session xfwm4 xfce4-panel xfce4-terminal \
+        xfce4-settings xfconf && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# XFCE apps (file manager, desktop)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        thunar xfdesktop4 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Fonts + themes + GL
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        fonts-noto gnome-themes-extra-data libgl1 mesa-utils && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Audio + network + misc
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        pulseaudio-utils netcat-openbsd python3-tk && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# CLI tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        curl wget zip unzip jq tree sqlite3 less locales ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Browser + GUI apps
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        firefox-esr mousepad ristretto && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Dev tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        git golang-go python3-pip python3-venv python3-dev \
+        build-essential cmake pkg-config && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# System tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        htop tmux openssh-client && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# XFCE plugins (touch-friendly)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        xfce4-whiskermenu-plugin xfce4-power-manager \
+        xfce4-pulseaudio-plugin xfce4-genmon-plugin && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Extra utils
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        inotify-tools x11-xserver-utils && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Node.js 22 LTS (NodeSource)
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \

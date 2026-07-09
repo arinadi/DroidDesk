@@ -124,7 +124,7 @@ bash ~/.droiddesk/scripts/patch.sh --list
 | 🔧 CLI | ripgrep, GitHub CLI |
 | 🎨 GUI | Viewnior, Xarchiver, Galculator |
 
-> **Built into image**: Firefox ESR, Mousepad, Ristretto, Git, Node.js 22 LTS, Go, Python 3 (pip/venv/dev), GCC/Make/CMake, htop, tmux, OpenSSH, neofetch. Stock XFCE (Greybird). No patch needed.
+> **Built into image**: Firefox ESR, Mousepad, Ristretto, Git, Node.js 22 LTS, Go, Python 3 (pip/venv/dev), GCC/Make/CMake, htop, tmux, OpenSSH. Stock XFCE (Greybird). No patch needed.
 
 ---
 
