@@ -67,7 +67,7 @@ cat > "$CONF_DIR/xfce4-panel.xml" << 'PEOF'
       <property name="plugin-ids" type="array">
         <value type="int" value="1"/><value type="int" value="2"/><value type="int" value="3"/>
         <value type="int" value="4"/><value type="int" value="5"/><value type="int" value="6"/>
-        <value type="int" value="7"/><value type="int" value="8"/><value type="int" value="9"/>
+        <value type="int" value="7"/><value type="int" value="8"/>
       </property>
     </property>
   </property>
@@ -85,14 +85,13 @@ cat > "$CONF_DIR/xfce4-panel.xml" << 'PEOF'
     <property name="plugin-5" type="string" value="pulseaudio">
       <property name="show-notifications" type="bool" value="false"/>
     </property>
-    <property name="plugin-6" type="string" value="power-manager-plugin"/>
-    <property name="plugin-7" type="string" value="systray">
+    <property name="plugin-6" type="string" value="systray">
       <property name="icon-size" type="uint" value="32"/>
     </property>
-    <property name="plugin-8" type="string" value="clock">
+    <property name="plugin-7" type="string" value="clock">
       <property name="mode" type="uint" value="4"/>
     </property>
-    <property name="plugin-9" type="string" value="actions"/>
+    <property name="plugin-8" type="string" value="actions"/>
   </property>
 </channel>
 PEOF
