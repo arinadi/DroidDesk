@@ -1,6 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
+# ⚠️  MANUAL TOOL — only run BEFORE updating DroidDesk
+# Usage:
+#   1. bash ~/.droiddesk/scripts/proot-backup.sh
+#   2. bash ~/update.sh  (fresh install)
+#   3. bash ~/.droiddesk/scripts/proot-restore.sh
+#   4. bash ~/.droiddesk/scripts/patch.sh  (reinstall your packages)
+
 # proot-backup.sh — Backup user layer before proot reset
 # Saves: installed packages (user-installed only) + home directory
 

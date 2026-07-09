@@ -1,6 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
+# ⚠️  MANUAL TOOL — only run AFTER updating DroidDesk
+# Usage: see proot-backup.sh header
+
 # proot-restore.sh — Restore user layer on top of fresh image
 # Restores: home directory + user-installed packages
 
