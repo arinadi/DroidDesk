@@ -27,22 +27,22 @@ RUN apt-get update && \
         thunar xfdesktop4 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Fonts + themes + GL (font pakai bawaan Ubuntu base)
+# Fonts + themes + GL
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gnome-themes-extra-data libgl1 mesa-utils && \
+        libgl1 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Audio + network + misc
+# Audio + network
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        pulseaudio-utils netcat-openbsd python3-tk && \
+        pulseaudio-utils netcat-openbsd && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # CLI tools
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        curl wget zip unzip jq tree sqlite3 less locales ca-certificates && \
+        curl wget zip unzip jq tree less locales ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Browser + GUI apps
@@ -54,7 +54,7 @@ RUN apt-get update && \
 # Dev tools
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        git golang-go python3-pip python3-venv python3-dev \
+        git python3-pip python3-venv python3-dev \
         build-essential cmake pkg-config && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -74,7 +74,7 @@ RUN apt-get update && \
 # Extra utils
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        inotify-tools x11-xserver-utils && \
+        x11-xserver-utils && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Node.js 22 LTS (NodeSource)
