@@ -27,10 +27,10 @@ RUN apt-get update && \
         thunar xfdesktop4 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Fonts + themes + GL
+# Fonts + themes + GL (font pakai bawaan Ubuntu base)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        fonts-noto gnome-themes-extra-data libgl1 mesa-utils && \
+        gnome-themes-extra-data libgl1 mesa-utils && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Audio + network + misc
