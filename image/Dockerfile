@@ -45,10 +45,26 @@ RUN apt-get update && \
         curl wget zip unzip jq tree less locales ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Browser + GUI apps
+# Firefox ESR (Mozilla APT repo — not in default Ubuntu repos)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gpg && \
+    install -d -m 0755 /etc/apt/keyrings && \
+    curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg | \
+        gpg --dearmor -o /etc/apt/keyrings/mozilla.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/mozilla.gpg] https://packages.mozilla.org/apt mozilla main" \
+        > /etc/apt/sources.list.d/mozilla.list && \
+    echo 'Package: *
+Pin: origin packages.mozilla.org
+Pin-Priority: 1000' \
+        > /etc/apt/preferences.d/mozilla && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends firefox-esr && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# GUI apps
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        firefox-esr mousepad ristretto && \
+        mousepad ristretto && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Dev tools
