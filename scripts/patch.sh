@@ -103,6 +103,10 @@ fi
 echo ""
 echo ">>> Installing ${#SELECTED[@]} patches..."
 
+# Track layered packages (Silverblue-style)
+LAYERS_FILE="$HOME/.droiddesk/layers.txt"
+touch "$LAYERS_FILE"
+
 for key in "${SELECTED[@]}"; do
     IFS='|' read -r desc cmd <<< "${PATCHES[$key]}"
     echo ""
@@ -111,6 +115,10 @@ for key in "${SELECTED[@]}"; do
         export DEBIAN_FRONTEND=noninteractive
         $cmd
     " || echo "  ⚠️  Failed: $key"
+    # Track this layer
+    if ! grep -qx "$key" "$LAYERS_FILE" 2>/dev/null; then
+        echo "$key" >> "$LAYERS_FILE"
+    fi
 done
 
 echo ""

@@ -42,9 +42,15 @@ sleep 1
 echo ""
 echo ">>> Removing proot container..."
 if proot-distro list 2>/dev/null | grep -q "droiddesk"; then
-    proot-distro remove droiddesk 2>&1 && echo "  [x] droiddesk removed" || echo "  [-] Failed to remove (manual cleanup needed)"
-elif proot-distro list 2>/dev/null | grep -q "ubuntu"; then
-    proot-distro remove ubuntu 2>&1 && echo "  [x] ubuntu removed" || echo "  [-] Failed to remove (manual cleanup needed)"
+    proot-distro remove droiddesk 2>&1 && echo "  [x] droiddesk removed" || echo "  [-] Failed to remove"
+fi
+if proot-distro list 2>/dev/null | grep -q "droiddesk-prev"; then
+    proot-distro remove droiddesk-prev 2>&1 && echo "  [x] droiddesk-prev removed" || echo "  [-] Failed to remove"
+fi
+# Legacy ubuntu container
+if proot-distro list 2>/dev/null | grep -q "ubuntu"; then
+    proot-distro remove ubuntu 2>&1 && echo "  [x] ubuntu removed" || echo "  [-] Failed to remove"
+fi
 else
     echo "  [-] No proot container found"
 fi
