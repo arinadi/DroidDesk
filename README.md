@@ -12,7 +12,7 @@
 curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh?v=$(date +%s%3N)" | bash
 ```
 
-That's it. Installs XFCE desktop, mobile-optimized theme, and all launchers. **Under 30 seconds.**
+That's it. Installs XFCE desktop with stock theme and all launchers. **Under 30 seconds.**
 
 ---
 
@@ -22,11 +22,12 @@ That's it. Installs XFCE desktop, mobile-optimized theme, and all launchers. **U
 
 Connect a monitor and it's a Linux PC. Unplug and your entire setup comes with you.
 
-- 🖥️ **Full Desktop** — XFCE4 with mobile-optimized 64px panel, high DPI, dark theme
+- 🖥️ **Full Desktop** — XFCE4 with Whisker Menu, Firefox ESR, Mousepad, Git
+- 🖱️ **Touch Optimized** — Single-click Thunar, large scrollbars, gesture-friendly
 - 🌐 **Real Browsers** — Firefox ESR that doesn't sleep when screen is off
-- 💻 **Real IDE** — VS Code, Geany, Neovim with native Node.js, Python, Git
+- 💻 **Real IDE** — VS Code, Geany, Neovim with native Node.js 22, Go, Python 3
 - 🤖 **Local AI** — Ollama runs LLMs offline, 5+ tokens/sec
-- 📱 **Android Integration** — Control battery, notifications, camera from Linux terminal
+- 📱 **Android Integration** — Battery, clipboard sync, volume, camera, voice from terminal
 
 ### Overcomes Android's Biggest Limitations
 
@@ -106,7 +107,7 @@ After setup, add software with the patch installer:
 bash ~/.droiddesk/scripts/patch.sh
 
 # Or install specific packages
-bash ~/.droiddesk/scripts/patch.sh --firefox --code --nodejs
+bash ~/.droiddesk/scripts/patch.sh --chromium --code --node
 
 # See all available
 bash ~/.droiddesk/scripts/patch.sh --list
@@ -116,13 +117,14 @@ bash ~/.droiddesk/scripts/patch.sh --list
 
 | Category | Packages |
 |----------|----------|
-| 🌐 Browser | Firefox ESR, Chromium |
+| 🌐 Browser | Chromium |
 | 💻 IDE | VS Code, Geany, Neovim |
-| 🟢 Dev | Node.js 24, Python 3, Git, GitHub CLI, Build Essential |
 | 🤖 AI | Ollama (local LLM) |
-| 🖥️ System | htop, tmux, Zsh, Nala, Docker |
-| 🔧 CLI | jq, tree, ripgrep, SQLite, curl, wget |
+| 🖥️ System | Zsh, Nala, Docker |
+| 🔧 CLI | ripgrep, GitHub CLI |
 | 🎨 GUI | Viewnior, Xarchiver, Galculator |
+
+> **Built into image**: Firefox ESR, Mousepad, Ristretto, Git, Node.js 22 LTS, Go, Python 3 (pip/venv/dev), GCC/Make/CMake, htop, tmux, OpenSSH, neofetch. Stock XFCE (Greybird). No patch needed.
 
 ---
 
@@ -143,10 +145,10 @@ Or re-run install — it detects existing installation and offers to update.
 ```
 ┌─────────────────────────────────────┐
 │  USER LAYER (mutable)               │  ← Your packages, configs, data
-│  Firefox, VS Code, custom themes    │     Preserved across updates
+│  VS Code, Chromium, Ollama, etc.    │     Preserved across updates
 ├─────────────────────────────────────┤
 │  IMAGE LAYER (immutable)            │  ← Pre-built from Dockerfile
-│  Ubuntu 24.04 + XFCE + base tools   │     ghcr.io/arinadi/droiddesk
+│  Ubuntu 24.04 + XFCE + 20+ tools    │     ghcr.io/arinadi/droiddesk
 └─────────────────────────────────────┘
 ```
 
@@ -194,6 +196,8 @@ DroidDesk runs on top of Termux, which has inherent limitations:
 
 ## 📱 Commands
 
+### Desktop
+
 | Command | Action |
 |---------|--------|
 | `bash ~/start-x11.sh` | Start X11 + PulseAudio |
@@ -203,6 +207,40 @@ DroidDesk runs on top of Termux, which has inherent limitations:
 | `bash ~/kill-x11.sh` | Stop X11/audio only |
 | `bash ~/update.sh` | Update DroidDesk |
 | `bash ~/.droiddesk/scripts/patch.sh` | Install software |
+
+### 📱 Termux:API Commands (inside proot)
+
+> Requires [Termux:API](https://f-droid.org/en/packages/com.termux.api/) app.
+
+| Command | Action |
+|---------|--------|
+| `battery` | Show battery % and health |
+| `clipget` | Paste from Android clipboard |
+| `clipset "text"` | Copy to Android clipboard |
+| `vol-up` / `vol-down` | Control media volume |
+| `bright 50` | Set screen brightness 0-100 |
+| `toast "hello"` | Show Android toast popup |
+| `notify "Title" "Body"` | Send Android notification |
+| `buzz` | Short vibration feedback |
+| `speak "hello"` | Text-to-speech |
+| `listen` | Speech-to-text (voice input) |
+| `openurl "https://..."` | Open URL in Android browser |
+| `share file.txt` | Share file to Android apps |
+| `whereami` | GPS location (JSON) |
+| `wifi` | WiFi connection info |
+| `photo shot.jpg` | Take photo with camera |
+| `flash` / `flash-off` | Toggle flashlight |
+
+### 🔋 Panel Monitors (optional, add via Whisker Menu → Panel → Add)
+
+| Monitor | Command |
+|---------|---------|
+| Battery % | `bash ~/.droiddesk/tools/genmon-battery.sh` |
+| Volume level | `bash ~/.droiddesk/tools/genmon-volume.sh` |
+
+### 🔄 Clipboard Sync (auto-starts on login)
+
+Android and proot clipboards stay in sync automatically. No manual copy-paste needed.
 
 ---
 

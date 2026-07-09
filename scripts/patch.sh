@@ -9,26 +9,18 @@ CONTAINER="droiddesk"
 declare -A PATCHES
 
 # Browsers
-PATCHES[firefox]="Firefox ESR|apt-get install -y firefox-esr"
 PATCHES[chromium]="Chromium Browser|apt-get install -y chromium-browser"
 
 # Development
 PATCHES[code]="VS Code (code-server)|curl -fsSL https://code-server.dev/install.sh | sh"
 PATCHES[geany]="Geany (Lightweight IDE)|apt-get install -y geany"
-PATCHES[node]="Node.js 24|curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && apt-get install -y nodejs"
-PATCHES[python]="Python 3 + pip + venv|apt-get install -y python3-pip python3-venv"
-PATCHES[build]="Build Essential (gcc/make/g++)|apt-get install -y build-essential"
-PATCHES[cmake]="CMake Build System|apt-get install -y cmake"
-PATCHES[git]="Git + GitHub CLI|apt-get install -y git gh"
-PATCHES[openssh]="OpenSSH Client|apt-get install -y openssh-client"
+PATCHES[neovim]="Neovim|apt-get install -y neovim"
 
 # AI
 PATCHES[ollama]="Ollama (local LLM)|curl -fsSL https://ollama.com/install.sh | sh"
 
 # System
-PATCHES[htop]="htop + tmux|apt-get install -y htop tmux"
 PATCHES[zsh]="Zsh + Oh My Zsh|apt-get install -y zsh && su - admin -c 'sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" \"\" --unattended'"
-PATCHES[neovim]="Neovim|apt-get install -y neovim"
 PATCHES[nala]="Nala (Modern APT)|apt-get install -y nala"
 PATCHES[docker]="Docker (rootless)|curl -fsSL https://get.docker.com | sh"
 
@@ -39,6 +31,7 @@ PATCHES[ripgrep]="Fast Grep (rg)|apt-get install -y ripgrep"
 PATCHES[viewnior]="Image Viewer (Viewnior)|apt-get install -y viewnior"
 PATCHES[xarchiver]="Archive Manager|apt-get install -y xarchiver"
 PATCHES[galculator]="Calculator (Galculator)|apt-get install -y galculator"
+PATCHES[github]="GitHub CLI|apt-get install -y gh"
 
 # === Parse args ===
 SELECTED=()
@@ -48,26 +41,19 @@ if [ $# -gt 0 ]; then
     INTERACTIVE=false
     for arg in "$@"; do
         case "$arg" in
-            --firefox)    SELECTED+=("firefox") ;;
             --chromium)   SELECTED+=("chromium") ;;
             --code)       SELECTED+=("code") ;;
             --geany)      SELECTED+=("geany") ;;
-            --node)       SELECTED+=("node") ;;
-            --python)     SELECTED+=("python") ;;
-            --build)      SELECTED+=("build") ;;
-            --cmake)      SELECTED+=("cmake") ;;
-            --git)        SELECTED+=("git") ;;
-            --openssh)    SELECTED+=("openssh") ;;
-            --ollama)     SELECTED+=("ollama") ;;
-            --htop)       SELECTED+=("htop") ;;
-            --zsh)        SELECTED+=("zsh") ;;
             --neovim)     SELECTED+=("neovim") ;;
+            --ollama)     SELECTED+=("ollama") ;;
+            --zsh)        SELECTED+=("zsh") ;;
             --nala)       SELECTED+=("nala") ;;
             --docker)     SELECTED+=("docker") ;;
             --ripgrep)    SELECTED+=("ripgrep") ;;
             --viewnior)   SELECTED+=("viewnior") ;;
             --xarchiver)  SELECTED+=("xarchiver") ;;
             --galculator) SELECTED+=("galculator") ;;
+            --github)     SELECTED+=("github") ;;
             --all)        mapfile -t SELECTED < <(echo "${!PATCHES[@]}" | tr ' ' '\n') ;;
             --list)
                 echo "Available patches:"

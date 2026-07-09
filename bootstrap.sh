@@ -143,11 +143,6 @@ echo ">>> Setting up Termux:API bridge..."
 bash "${SCRIPTS_DIR}/api-bridge-setup.sh"
 
 echo ""
-echo ">>> Applying XFCE mobile theme..."
-proot-distro login droiddesk -- su - admin -c "bash /home/admin/.droiddesk/scripts/xfce-config.sh" 2>/dev/null || \
-    bash "${SCRIPTS_DIR}/xfce-config.sh"
-
-echo ""
 echo ">>> Installing launchers..."
 bash "${SCRIPTS_DIR}/launcher-gen.sh"
 
@@ -170,8 +165,9 @@ echo "║                                       ║"
 echo "║  Stop:                                ║"
 echo "║    bash ~/kill-all.sh                 ║"
 echo "║                                       ║"
-echo "║  Extra apps:                          ║"
-echo "║    bash ~/.droiddesk/scripts/patch.sh ║"
+echo "║  Built-in: Firefox ESR, Node 22, Go,  ║"
+echo "║  Python, Git, GCC/CMake, Mousepad...  ║"
+echo "║  More: ~/.droiddesk/scripts/patch.sh  ║"
 echo "║                                       ║"
 echo "║  Uninstall:                           ║"
 echo "║    bash ~/DroidDesk/uninstall.sh      ║"

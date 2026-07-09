@@ -1,5 +1,6 @@
 export DISPLAY=:0
 export XDG_RUNTIME_DIR=/tmp
+export NO_AT_BRIDGE=1
 
 # Clean PATH from Termux pollution
 export PATH=/home/admin/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -8,10 +9,42 @@ export PATH=/home/admin/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
-alias update='sudo apt-get update && sudo apt-get upgrade -y'
+# Go
+export GOPATH="$HOME/go"
+export PATH="$PATH:$GOPATH/bin"
 
-# Termux:API Aliases
-TAPI_CMDS="battery-status notification toast vibrate volume-get volume-set brightness wallpaper"
-for cmd in $TAPI_CMDS; do
-    alias termux-$cmd="tapi termux-$cmd"
-done
+# Python: pip user installs
+export PATH="$PATH:$HOME/.local/bin"
+
+alias update='sudo apt-get update && sudo apt-get upgrade -y'
+alias ll='ls -la'
+alias la='ls -A'
+alias l='ls -CF'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias cls='clear'
+alias df='df -h'
+alias free='free -h'
+alias ports='ss -tlnp'
+alias myip='curl -s ifconfig.me && echo'
+
+# ──── DroidDesk TAPI utilities ────
+TAPI_UTILS="$HOME/.droiddesk/tools/tapi-utils.sh"
+if [ -f "$TAPI_UTILS" ]; then
+    source "$TAPI_UTILS"
+fi
+
+# ──── Welcome ────
+if [ -f "$HOME/.droiddesk/tools/tapi-utils.sh" ]; then
+    echo ""
+    echo "╔═══════════════════════════════════╗"
+    echo "║  📱 DroidDesk — Ready             ║"
+    echo "╠═══════════════════════════════════╣"
+    echo "║  battery       clipget / clipset  ║"
+    echo "║  vol-up/down   bright 50          ║"
+    echo "║  toast 'msg'   buzz               ║"
+    echo "║  speak 'text'  listen             ║"
+    echo "║  whereami      wifi | photo pic   ║"
+    echo "╚═══════════════════════════════════╝"
+    echo ""
+fi

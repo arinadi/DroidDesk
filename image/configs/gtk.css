@@ -1,26 +1,46 @@
-# Dark theme overrides for AMOLED screens
-# Place in ~/.config/gtk-3.0/gtk.css
+/* ===============================================
+   DroidDesk — Touch-Friendly GTK Overrides
+   Larger scrollbars, bigger hit areas for mobile
+   =============================================== */
 
-/* Dark scrollbar */
-scrollbar {
-    background-color: rgba(30, 30, 30, 0.8);
-    border-radius: 8px;
-}
+/* --- Thicker scrollbars --- */
 scrollbar slider {
-    background-color: rgba(100, 100, 100, 0.6);
-    border-radius: 8px;
+    min-width: 14px;
+    min-height: 14px;
+    border-radius: 7px;
+}
+scrollbar.vertical slider { min-width: 14px; }
+scrollbar.horizontal slider { min-height: 14px; }
+
+/* --- Larger checkboxes & radio buttons --- */
+checkbutton check, radiobutton radio {
+    min-width: 22px;
+    min-height: 22px;
+}
+
+/* --- Bigger spinbutton arrows --- */
+spinbutton button {
+    min-width: 28px;
+    min-height: 28px;
+}
+
+/* --- Wider combo box dropdown arrows --- */
+combobox button {
+    min-width: 30px;
+}
+
+/* --- Increase separator/drag handles --- */
+paned separator {
     min-width: 6px;
     min-height: 6px;
 }
 
-/* Dark selection */
-selection {
-    background-color: #3a7bd5;
-    color: white;
+/* --- Thunar sidebar padding --- */
+.thunar .sidebar .view {
+    padding: 4px;
 }
 
-/* Dark tooltip */
-tooltip {
-    background-color: #1e1e1e;
-    color: #e0e0e0;
+/* --- Thunar icon view: more spacing --- */
+.thunar .standard-view .view {
+    padding: 6px;
 }

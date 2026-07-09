@@ -42,7 +42,36 @@ RUN apt-get update && \
         tree \
         sqlite3 \
         less \
-        locales && \
+        locales \
+        ca-certificates \
+        firefox-esr \
+        mousepad \
+        ristretto \
+        git \
+        golang-go \
+        python3-pip \
+        python3-venv \
+        python3-dev \
+        build-essential \
+        cmake \
+        pkg-config \
+        htop \
+        tmux \
+        openssh-client \
+        neofetch \
+        xfce4-whiskermenu-plugin \
+        xfce4-power-manager \
+        xfce4-pulseaudio-plugin \
+        xfce4-genmon-plugin \
+        inotify-tools \
+        xdotool \
+        x11-xserver-utils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Node.js 22 LTS (NodeSource)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -55,15 +84,23 @@ RUN useradd -m -s /bin/bash admin && \
 # Copy configs (image layer defaults)
 COPY configs/bashrc /home/admin/.bashrc
 COPY configs/client.conf /home/admin/.pulse/client.conf
-COPY configs/xfce4-panel.xml /home/admin/.config/xfce4/xfconf/xfce-perchannel-xml/
-COPY configs/xfwm4.xml /home/admin/.config/xfce4/xfconf/xfce-perchannel-xml/
-COPY configs/xsettings.xml /home/admin/.config/xfce4/xfconf/xfce-perchannel-xml/
-COPY configs/xfce4-desktop.xml /home/admin/.config/xfce4/xfconf/xfce-perchannel-xml/
 
-# Dark theme overrides
-RUN mkdir -p /home/admin/.config/gtk-3.0 /home/admin/.config/xfce4/terminal
+# --- XFCE Touch-Friendly Setup ---
+# GTK touch overrides (larger scrollbars, hit areas)
+RUN mkdir -p /home/admin/.config/gtk-3.0
 COPY configs/gtk.css /home/admin/.config/gtk-3.0/gtk.css
-COPY configs/terminalrc /home/admin/.config/xfce4/terminal/terminalrc
+
+# Thunar single-click
+RUN mkdir -p /home/admin/.config/xfce4/xfconf/xfce-perchannel-xml
+COPY configs/thunar.xml /home/admin/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
+
+# TAPI utils (Termux:API bridge helpers)
+RUN mkdir -p /home/admin/.droiddesk/tools /home/admin/.config/autostart
+COPY configs/tapi-utils.sh /home/admin/.droiddesk/tools/tapi-utils.sh
+COPY configs/genmon-battery.sh /home/admin/.droiddesk/tools/genmon-battery.sh
+COPY configs/genmon-volume.sh /home/admin/.droiddesk/tools/genmon-volume.sh
+COPY configs/clipboard-sync.sh /home/admin/.droiddesk/tools/clipboard-sync.sh
+COPY configs/autostart/ /home/admin/.config/autostart/
 
 # Fix ownership
 RUN chown -R admin:admin /home/admin
