@@ -2,8 +2,8 @@ export DISPLAY=:0
 export XDG_RUNTIME_DIR=/tmp
 export NO_AT_BRIDGE=1
 export LIBGL_ALWAYS_SOFTWARE=1
-export GDK_SCALE=1
-# export GDK_DPI_SCALE=1
+export GDK_SCALE=2
+export GDK_DPI_SCALE=0.5
 # Firefox: suppress sandbox video device spam in proot
 export MOZ_DISABLE_CONTENT_SANDBOX=1
 

@@ -18,16 +18,16 @@ cat > "$CONF_DIR/xsettings.xml" << 'XEOF'
     <property name="IconThemeName" type="string" value="elementary-xfce-hidpi"/>
   </property>
   <property name="Xft" type="empty">
-    <property name="DPI" type="int" value="144"/>
+    <property name="DPI" type="int" value="96"/>
   </property>
   <property name="Gtk" type="empty">
     <property name="FontName" type="string" value="Sans 12"/>
     <property name="CursorThemeName" type="string" value="Adwaita"/>
-    <property name="CursorThemeSize" type="int" value="36"/>
+    <property name="CursorThemeSize" type="int" value="24"/>
   </property>
   <property name="Xfce" type="empty">
-    <property name="LastCustomDPI" type="int" value="144"/>
-    <property name="WindowScalingFactor" type="int" value="1"/>
+    <property name="LastCustomDPI" type="int" value="96"/>
+    <property name="WindowScalingFactor" type="int" value="2"/>
   </property>
 </channel>
 XEOF
@@ -122,9 +122,9 @@ echo "║  GTK:   Orchis-Dark (Material)     ║"
 echo "║  Icons: elementary-xfce-hidpi      ║"
 echo "║  WM:    Orchis-Dark-xhdpi          ║"
 echo "║  Panel: 64px dark, 8 plugins       ║"
-echo "║  DPI:   144 (1.5x feel, scale 1)   ║"
+echo "║  DPI:   96 (Scale 2x)   ║"
 echo "║  Font:  Sans 12                    ║"
-echo "║  Cursor: 36px                      ║"
+echo "║  Cursor: 24px (2x → 48px)                      ║"
 echo "╠═══════════════════════════════════╣"
 echo "║  Restart XFCE to apply            ║"
 echo "╚═══════════════════════════════════╝"
