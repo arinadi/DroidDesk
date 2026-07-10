@@ -1,7 +1,7 @@
 <div align="center">
   <h1>📱 arinanoX</h1>
   <p><strong>Your phone is a Linux workstation.</strong></p>
-  <p>Debian 13 + XFCE + Firefox ESR + dev tools — running natively on Android.</p>
+  <p>Debian 13 on Android via Termux + proot. XFCE desktop, Firefox ESR, dev tools — declarative, atomic, touch-optimized.</p>
   <p><a href="https://arinano.work">arinano.work</a></p>
 
   <img src="docs/arinanox-screenshot.jpg" alt="arinanoX" width="320" style="border-radius:12px;margin:16px 0;">
