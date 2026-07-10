@@ -2,16 +2,16 @@
   <h1>📱 arinanoX</h1>
   <p><strong>Your phone is a Linux workstation — in 30 seconds.</strong></p>
   <p>
-    Debian 13 &nbsp;·&nbsp; XFCE &nbsp;·&nbsp; Firefox ESR &nbsp;·&nbsp; Dev tools &nbsp;·&nbsp; Touch-optimized
-  </p>
-  <p><strong>X</strong> = TermuX&nbsp;→&nbsp;X11&nbsp;→&nbsp;LinuX&nbsp;→&nbsp;Trixie&nbsp;→&nbsp;XFCE</p>
-  <p>
     <a href="https://arinano.work"><img src="https://img.shields.io/badge/site-arinano.work-blue"></a>
     <a href="https://github.com/arinadi/arinanoX/actions"><img src="https://img.shields.io/github/actions/workflow/status/arinadi/arinanoX/build-image.yml?label=build"></a>
     <a href="https://github.com/arinadi/arinanoX/blob/main/LICENSE"><img src="https://img.shields.io/github/license/arinadi/arinanoX"></a>
   </p>
   <br>
   <img src="docs/arinanox-screenshot.jpg" alt="arinanoX desktop" width="360" style="border-radius:12px;">
+  <p>
+    Debian 13 &nbsp;·&nbsp; XFCE &nbsp;·&nbsp; Firefox ESR &nbsp;·&nbsp; Dev tools &nbsp;·&nbsp; Touch-optimized<br>
+    <small>TermuX&nbsp;→&nbsp;X11&nbsp;→&nbsp;LinuX&nbsp;→&nbsp;Trixie&nbsp;→&nbsp;XFCE</small>
+  </p>
 </div>
 
 ---
@@ -62,7 +62,7 @@ Installs XFCE desktop, launchers, and all built-in tools. **Under 30 seconds.**
 
 ### Declarative Image (NixOS-inspired)
 
-The image is built from a **single Dockerfile** — your system as code. **X** = TermuX, X11, LinuX, Trixie, XFCE.
+The image is built from a **single Dockerfile** — your system as code.
 
 - 📦 **All packages, configs, and themes** defined declaratively in one file
 - ⚙️ **XFCE optimized for proot**: compositing off, DPI/scale, touch-friendly
