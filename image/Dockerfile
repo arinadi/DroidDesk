@@ -48,7 +48,7 @@ RUN apt-get update && \
 # GUI apps
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        mousepad ristretto tumbler && \
+        mousepad ristretto tumbler && \ orchis-gtk-theme elementary-xfce-icon-theme
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Dev tools

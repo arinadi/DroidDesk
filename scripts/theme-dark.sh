@@ -9,47 +9,39 @@ mkdir -p "$CONF_DIR"
 
 echo ">>> Applying DroidDesk Dark Mobile Theme..."
 
-# ── xsettings: Blackbird, Adwaita-dark icons, DPI 96 + Scale 2 ──
+# ── xsettings: Orchis-Dark, elementary-xfce-hidpi, DPI 144 (1.5x) ──
 cat > "$CONF_DIR/xsettings.xml" << 'XEOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xsettings" version="1.0">
   <property name="Net" type="empty">
-    <property name="ThemeName" type="string" value="Blackbird"/>
-    <property name="IconThemeName" type="string" value="Adwaita"/>
-    <property name="IconSizes" type="string" value="gtk-large=48,48:gtk-dialog=48,48:gtk-menus=48,48:gtk-toolbar=48,48"/>
+    <property name="ThemeName" type="string" value="Orchis-Dark"/>
+    <property name="IconThemeName" type="string" value="elementary-xfce-hidpi"/>
   </property>
   <property name="Xft" type="empty">
-    <property name="DPI" type="int" value="96"/>
+    <property name="DPI" type="int" value="144"/>
   </property>
   <property name="Gtk" type="empty">
     <property name="FontName" type="string" value="Sans 12"/>
     <property name="CursorThemeName" type="string" value="Adwaita"/>
-    <property name="CursorThemeSize" type="int" value="24"/>
-    <property name="DecorationLayout" type="string" value="icon,menu:minimize,maximize,close"/>
+    <property name="CursorThemeSize" type="int" value="36"/>
   </property>
   <property name="Xfce" type="empty">
-    <property name="LastCustomDPI" type="int" value="96"/>
-    <property name="SyncThemes" type="bool" value="true"/>
-    <property name="WindowScalingFactor" type="int" value="2"/>
+    <property name="LastCustomDPI" type="int" value="144"/>
+    <property name="WindowScalingFactor" type="int" value="1"/>
   </property>
 </channel>
 XEOF
 
-# ── xfwm4: Blackbird (has xfwm4 theme), center, no compositing ──
+# ── xfwm4: Orchis-Dark-xhdpi, center, no compositing ──
 cat > "$CONF_DIR/xfwm4.xml" << 'WMEOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfwm4" version="1.0">
   <property name="general" type="empty">
     <property name="use_compositing" type="bool" value="false"/>
-    <property name="theme" type="string" value="Default-xhdpi"/>
+    <property name="theme" type="string" value="Orchis-Dark-xhdpi"/>
     <property name="button_layout" type="string" value="O|SHMC"/>
-    <property name="placement_mode" type="string" value="center"/>
     <property name="borderless_maximize" type="bool" value="true"/>
-    <property name="title_alignment" type="string" value="center"/>
     <property name="title_font" type="string" value="Sans Bold 11"/>
-    <property name="snap_to_border" type="bool" value="true"/>
-    <property name="snap_to_windows" type="bool" value="true"/>
-    <property name="wrap_windows" type="bool" value="true"/>
   </property>
 </channel>
 WMEOF
@@ -124,15 +116,15 @@ DEOF
 
 echo ""
 echo "╔═══════════════════════════════════╗"
-echo "║  🌙 Dark Mobile Theme Applied     ║"
+echo "║  🎨 Orchis Material + Elementary   ║"
 echo "╠═══════════════════════════════════╣"
-echo "║  GTK:   Blackbird (dark)          ║"
-echo "║  Icons: Adwaita (dark)            ║"
-echo "║  WM:    Default-xhdpi (large borders)║"
-echo "║  Panel: 64px dark, 8 plugins      ║"
-echo "║  DPI:   96 + Scale 2x             ║"
-echo "║  Font:  Sans 12                   ║"
-echo "║  Cursor: 24px (2x → 48px)         ║"
+echo "║  GTK:   Orchis-Dark (Material)     ║"
+echo "║  Icons: elementary-xfce-hidpi      ║"
+echo "║  WM:    Orchis-Dark-xhdpi          ║"
+echo "║  Panel: 64px dark, 8 plugins       ║"
+echo "║  DPI:   144 (1.5x feel, scale 1)   ║"
+echo "║  Font:  Sans 12                    ║"
+echo "║  Cursor: 36px                      ║"
 echo "╠═══════════════════════════════════╣"
 echo "║  Restart XFCE to apply            ║"
 echo "╚═══════════════════════════════════╝"
