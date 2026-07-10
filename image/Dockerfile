@@ -26,7 +26,6 @@ RUN apt-get update && \
         mousepad ristretto tumbler adwaita-icon-theme \
         orchis-gtk-theme elementary-xfce-icon-theme \
         firefox-esr \
-        xdotool && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ═══════════════════════════════════════════════
