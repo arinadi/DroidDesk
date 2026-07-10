@@ -247,4 +247,21 @@ arinanoX/
 
 ## 📜 License
 
+## 🖱️ Right-Click on Touchscreen
+
+Trackpad mode is recommended. For right-click without switching modes:
+
+1. `Ctrl+Alt+R` triggers right-click at pointer (via xdotool)
+2. Add a button to Termux Extra Keys:
+
+`~/.termux/termux.properties`:
+```properties
+extra-keys = [ \
+ ['ESC','/',{key: '-', popup: '|'},'HOME','UP','END','PGUP',{macro: "CTRL ALT r", display: "🖱️R"}], \
+ ['TAB','CTRL','ALT','LEFT','DOWN','RIGHT','PGDN','KEYBOARD'] \
+]
+```
+
+Run `termux-reload-settings` after saving.
+
 GPLv3
