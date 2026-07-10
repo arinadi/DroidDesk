@@ -68,8 +68,8 @@ RUN apt-get update && \
 # XFCE plugins
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        xfce4-whiskermenu-plugin xfce4-power-manager \
-        xfce4-pulseaudio-plugin xfce4-genmon-plugin && \
+        xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin \
+        xfce4-genmon-plugin && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Extra
@@ -87,8 +87,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # xfce4-session calls pm-is-supported repeatedly — stub it
 RUN printf '#!/bin/sh\nexit 1\n' > /usr/bin/pm-is-supported && chmod +x /usr/bin/pm-is-supported
 
-# xfce4-power-manager needs systemd — disable autostart
-RUN printf '[Desktop Entry]\nHidden=true\n' > /etc/xdg/autostart/xfce4-power-manager.desktop
+# ──── Remove power-management (no systemd in proot) ────
+RUN apt-get purge -y libupower-glib3 2>/dev/null; apt-get autoremove --purge -y 2>/dev/null; true
 
 # ──── Create admin user ────
 RUN useradd -m -s /bin/bash admin && \
