@@ -1,15 +1,10 @@
 #!/bin/bash
-# 📱 arinanoX — Apply Orchis Dark Material theme inside proot
-# Called during bootstrap after proot setup completes.
+# 📱 arinanoX — XFCE Theme
+# Orchis Dark Material is baked into the image layer.
+# Config files: ~/.config/xfce4/xfconf/xfce-perchannel-xml/
+#   xsettings.xml     — Orchis-Dark, elementary-hidpi, DPI 96, Scale 2
+#   xfwm4.xml          — Orchis-Dark-xhdpi, compositing off, 1 workspace
+#   xfce4-panel.xml    — 64px borderless, whiskermenu + tasklist
+#   xfce4-desktop.xml  — dark background, no icons
 
-echo ">>> Applying Orchis Dark theme..."
-
-# Copy theme script into proot
-ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/containers/arinanox/rootfs"
-mkdir -p "${ROOTFS}/home/admin/.arinanox/scripts"
-cp "$HOME/.arinanox/scripts/theme-dark.sh" "${ROOTFS}/home/admin/.arinanox/scripts/"
-
-# Run inside proot as admin
-proot-distro login arinanox -- su - admin -c 'bash ~/.arinanox/scripts/theme-dark.sh' 2>/dev/null
-
-echo ">>> Theme applied."
+echo ">>> XFCE theme is pre-configured in the image."
