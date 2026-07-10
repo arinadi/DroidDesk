@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# install-tui-packages.sh — Interactive Package Installer for DroidDesk
+# install-tui-packages.sh — Interactive Package Installer for arinanoX
 # Run from Termux host. Uses dialog for checkbox TUI.
 set -euo pipefail
 
@@ -15,13 +15,13 @@ fi
 command -v dialog &>/dev/null || { echo "[*] Installing dialog..."; pkg install -y dialog; }
 
 # Temp file for dialog output
-TMPFILE=$(mktemp "${PREFIX}/tmp/droiddesk_tui.XXXXXX")
+TMPFILE=$(mktemp "${PREFIX}/tmp/arinanox_tui.XXXXXX")
 trap "rm -f '$TMPFILE' '${ROOTFS}/tmp/_tui_install.sh' 2>/dev/null" EXIT
 
 # =============================================
 #  Package Checklist (grouped by category)
 # =============================================
-dialog --title " 📦 DroidDesk Package Installer " \
+dialog --title " 📦 arinanoX Package Installer " \
     --checklist "\n Select packages to install into Ubuntu proot.\n Use SPACE to toggle, ENTER to confirm.\n\n ── Dev Essentials ──────────────────" \
     0 0 0 \
     "geany"           "📝  Geany (Lightweight IDE)"       ON  \
@@ -275,7 +275,7 @@ FOOTER
 # =============================================
 clear
 echo "==========================================="
-echo " 📦 DroidDesk Package Installer"
+echo " 📦 arinanoX Package Installer"
 echo "==========================================="
 echo ""
 echo " Selected packages:"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ═══════════════════════════════════════════
-#  DroidDesk — Clipboard Sync (Android ↔ proot)
+#  arinanoX — Clipboard Sync (Android ↔ proot)
 #  Runs in background, syncs clipboards
 # ═══════════════════════════════════════════
 

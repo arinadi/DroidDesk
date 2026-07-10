@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-DROIDDESK_DIR="$HOME/.droiddesk"
+DROIDDESK_DIR="$HOME/.arinanox"
 
 echo ">>> Setting up Termux:API bridge..."
 
@@ -10,7 +10,7 @@ cp "${DROIDDESK_DIR}/run-api-bridge.sh" ~/run-api-bridge.sh
 chmod +x ~/run-api-bridge.sh
 
 # 2. Create tapi client inside proot
-proot-distro login droiddesk -- bash -c '
+proot-distro login arinanox -- bash -c '
     cat > /usr/local/bin/tapi << "TAPIOF"
 #!/bin/bash
 # tapi (Termux-API-Bridge-Client)

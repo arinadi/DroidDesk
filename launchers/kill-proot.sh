@@ -13,10 +13,10 @@ done
 pkill -f "dbus-daemon --nofork --session" 2>/dev/null && echo "  [x] dbus-daemon killed" || true
 
 # Kill proot-distro login session (specific match to avoid killing other proot jobs)
-pkill -f "proot-distro login droiddesk" 2>/dev/null && echo "  [x] proot-distro killed" || true
+pkill -f "proot-distro login arinanox" 2>/dev/null && echo "  [x] proot-distro killed" || true
 
 # Kill orphan proot processes tied to the distro rootfs
-pkill -f "proot.*installed-rootfs/droiddesk" 2>/dev/null && echo "  [x] orphan proot killed" || true
+pkill -f "proot.*installed-rootfs/arinanox" 2>/dev/null && echo "  [x] orphan proot killed" || true
 
 # Short wait to let processes terminate cleanly
 sleep 1
@@ -25,14 +25,14 @@ sleep 1
 for proc in $XFCE_PROCS; do
     pkill -9 -f "$proc" 2>/dev/null || true
 done
-pkill -9 -f "proot.*installed-rootfs/droiddesk" 2>/dev/null || true
+pkill -9 -f "proot.*installed-rootfs/arinanox" 2>/dev/null || true
 
 # Aggressive Inner Cleanup (Handles residues even if host cleanup fails)
 echo "  [*] Performing deep residue cleanup inside proot..."
-proot-distro login droiddesk -- bash -c "rm -rf /tmp/xdg-* /tmp/dbus-* /tmp/.xfsm-ICE-* /tmp/.X11-unix/* /home/admin/.cache/sessions/* /home/admin/.ICEauthority /home/admin/.Xauthority 2>/dev/null"
+proot-distro login arinanox -- bash -c "rm -rf /tmp/xdg-* /tmp/dbus-* /tmp/.xfsm-ICE-* /tmp/.X11-unix/* /home/admin/.cache/sessions/* /home/admin/.ICEauthority /home/admin/.Xauthority 2>/dev/null"
 
 # Clean temp and session cache inside rootfs from host side (Double Layer)
-ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/containers/droiddesk/rootfs"
+ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/containers/arinanox/rootfs"
 if [ -d "$ROOTFS" ]; then
     echo "  [*] Cleaning host-side mounts and temp files..."
     rm -rf "$ROOTFS/tmp/.X"* 2>/dev/null

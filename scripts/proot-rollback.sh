@@ -1,12 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 # ═══════════════════════════════════════════
-#  DroidDesk Rollback — restore previous image
+#  arinanoX Rollback — restore previous image
 #  Silverblue-style: keep deployment 0 (current) and deployment 1 (previous)
 # ═══════════════════════════════════════════
 
-CONTAINER="droiddesk"
-PREV_CONTAINER="droiddesk-prev"
+CONTAINER="arinanox"
+PREV_CONTAINER="arinanox-prev"
 CONTAINERS_DIR="/data/data/com.termux/files/usr/var/lib/proot-distro/containers"
 
 if [ ! -d "${CONTAINERS_DIR}/${PREV_CONTAINER}" ]; then

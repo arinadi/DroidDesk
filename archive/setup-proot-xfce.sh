@@ -303,23 +303,23 @@ KILLPROOTEOF
 # --- Kill Script 3: Kill ALL (Convenience — runs both kill scripts) ---
 cat > ~/.shortcuts/kill-all.sh << 'KILLALLEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-echo ">>> Stopping ALL DroidDesk services..."
+echo ">>> Stopping ALL arinanoX services..."
 echo ""
 bash ~/.shortcuts/kill-proot.sh
 echo ""
 bash ~/.shortcuts/kill-x11.sh
 echo ""
 termux-wake-unlock 2>/dev/null
-echo ">>> All DroidDesk services stopped."
+echo ">>> All arinanoX services stopped."
 KILLALLEOF
 
 # --- Launcher 5: Auto-Updater ---
-cat > ~/.shortcuts/update-droiddesk.sh << 'UPDATEEOF'
+cat > ~/.shortcuts/update-arinanox.sh << 'UPDATEEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-echo ">>> Updating DroidDesk..."
+echo ">>> Updating arinanoX..."
 cd ~
 rm -f setup-proot-xfce.sh.new
-curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/setup-proot-xfce.sh?v=$(date +%s)" -o setup-proot-xfce.sh.new
+curl -sL "https://raw.githubusercontent.com/arinadi/arinanoX/main/setup-proot-xfce.sh?v=$(date +%s)" -o setup-proot-xfce.sh.new
 
 if [ -s setup-proot-xfce.sh.new ]; then
     chmod +x setup-proot-xfce.sh.new
@@ -333,7 +333,7 @@ else
 fi
 UPDATEEOF
 
-chmod +x ~/.shortcuts/start-x11.sh ~/.shortcuts/start-xfce.sh ~/.shortcuts/kill-x11.sh ~/.shortcuts/kill-proot.sh ~/.shortcuts/kill-all.sh ~/.shortcuts/update-droiddesk.sh
+chmod +x ~/.shortcuts/start-x11.sh ~/.shortcuts/start-xfce.sh ~/.shortcuts/kill-x11.sh ~/.shortcuts/kill-proot.sh ~/.shortcuts/kill-all.sh ~/.shortcuts/update-arinanox.sh
 
 # Create symlinks in home directory for terminal usage
 ln -sf ~/.shortcuts/start-x11.sh ~/start-x11.sh
@@ -341,13 +341,13 @@ ln -sf ~/.shortcuts/start-xfce.sh ~/start-xfce.sh
 ln -sf ~/.shortcuts/kill-x11.sh ~/kill-x11.sh
 ln -sf ~/.shortcuts/kill-proot.sh ~/kill-proot.sh
 ln -sf ~/.shortcuts/kill-all.sh ~/kill-all.sh
-ln -sf ~/.shortcuts/update-droiddesk.sh ~/update-droiddesk.sh
+ln -sf ~/.shortcuts/update-arinanox.sh ~/update-arinanox.sh
 
 # --- Termux MOTD Update ---
 cat > /data/data/com.termux/files/usr/etc/motd << MOTDEOF
 
 ==========================================
- 📱 DroidDesk Proot XFCE
+ 📱 arinanoX Proot XFCE
 ==========================================
 
  Start:
@@ -359,7 +359,7 @@ cat > /data/data/com.termux/files/usr/etc/motd << MOTDEOF
     bash ~/kill-all.sh         (stop ALL)
     bash ~/kill-proot.sh       (stop XFCE only)
     bash ~/kill-x11.sh         (stop X11/Audio only)
-    bash ~/update-droiddesk.sh (update)
+    bash ~/update-arinanox.sh (update)
 
  User: ${PROOT_USER} / Pass: ${PROOT_PASS}
 ==========================================
@@ -378,7 +378,7 @@ echo " Stop/Update:"
 echo "   bash ~/kill-all.sh         (stop ALL)"
 echo "   bash ~/kill-proot.sh       (stop XFCE/proot only)"
 echo "   bash ~/kill-x11.sh         (stop X11/audio only)"
-echo "   bash ~/update-droiddesk.sh (update scripts)"
+echo "   bash ~/update-arinanox.sh (update scripts)"
 echo ""
 echo " User: ${PROOT_USER} / Pass: ${PROOT_PASS}"
 echo "=========================================="

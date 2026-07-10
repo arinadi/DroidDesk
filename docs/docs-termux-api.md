@@ -1,6 +1,6 @@
-# 📱 Termux:API Guide for DroidDesk
+# 📱 Termux:API Guide for arinanoX
 
-Termux:API allows DroidDesk to interact with Android hardware and system features directly from the Linux command line.
+Termux:API allows arinanoX to interact with Android hardware and system features directly from the Linux command line.
 
 ## 🛠️ Essential Commands
 

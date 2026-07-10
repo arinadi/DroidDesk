@@ -59,5 +59,5 @@ If `tapi` hangs or fails:
 
 ## 🔋 Power Management (Wake Lock)
 When running long-running scripts (like Telegram Bots) using `tapi` or background browsers:
-- DroidDesk automatically activates `termux-wake-lock` when starting.
+- arinanoX automatically activates `termux-wake-lock` when starting.
 - This prevents Android from killing your Proot processes when the screen is off.

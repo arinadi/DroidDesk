@@ -1,21 +1,21 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-# uninstall.sh — Clean uninstall of DroidDesk
+# uninstall.sh — Clean uninstall of arinanoX
 # Removes: proot container, generated scripts, symlinks, configs
 
 echo "╔═══════════════════════════════════╗"
-echo "║  🗑️  DroidDesk Uninstaller        ║"
+echo "║  🗑️  arinanoX Uninstaller        ║"
 echo "╠═══════════════════════════════════╣"
 echo ""
 echo "This will remove:"
-echo "  • proot container (droiddesk)"
+echo "  • proot container (arinanox)"
 echo "  • launcher scripts (~/.shortcuts/)"
 echo "  • home symlinks (start-*, kill-*, update*)"
-echo "  • ~/.droiddesk/ cache"
+echo "  • ~/.arinanox/ cache"
 echo ""
 echo "This will NOT remove:"
-echo "  • ~/DroidDesk/ (git repo)"
+echo "  • ~/arinanoX/ (git repo)"
 echo "  • ~/storage/ (Android storage)"
 echo "  • ~/.bashrc (Termux config)"
 echo ""
@@ -41,11 +41,11 @@ sleep 1
 # 2. Remove proot container
 echo ""
 echo ">>> Removing proot container..."
-if proot-distro list 2>/dev/null | grep -q "droiddesk"; then
-    proot-distro remove droiddesk 2>&1 && echo "  [x] droiddesk removed" || echo "  [-] Failed to remove"
+if proot-distro list 2>/dev/null | grep -q "arinanox"; then
+    proot-distro remove arinanox 2>&1 && echo "  [x] arinanox removed" || echo "  [-] Failed to remove"
 fi
-if proot-distro list 2>/dev/null | grep -q "droiddesk-prev"; then
-    proot-distro remove droiddesk-prev 2>&1 && echo "  [x] droiddesk-prev removed" || echo "  [-] Failed to remove"
+if proot-distro list 2>/dev/null | grep -q "arinanox-prev"; then
+    proot-distro remove arinanox-prev 2>&1 && echo "  [x] arinanox-prev removed" || echo "  [-] Failed to remove"
 fi
 # Legacy ubuntu container
 if proot-distro list 2>/dev/null | grep -q "ubuntu"; then
@@ -64,7 +64,7 @@ rm -f ~/.shortcuts/start-x11.sh \
       ~/.shortcuts/kill-proot.sh \
       ~/.shortcuts/kill-all.sh \
       ~/.shortcuts/update.sh \
-      ~/.shortcuts/update-droiddesk.sh
+      ~/.shortcuts/update-arinanox.sh
 echo "  [x] ~/.shortcuts/ cleaned"
 
 # 4. Remove home symlinks
@@ -76,14 +76,14 @@ rm -f ~/start-x11.sh \
       ~/kill-proot.sh \
       ~/kill-all.sh \
       ~/update.sh \
-      ~/update-droiddesk.sh
+      ~/update-arinanox.sh
 echo "  [x] Home symlinks removed"
 
-# 5. Remove ~/.droiddesk cache
+# 5. Remove ~/.arinanox cache
 echo ""
-echo ">>> Removing ~/.droiddesk cache..."
-rm -rf ~/.droiddesk
-echo "  [x] ~/.droiddesk removed"
+echo ">>> Removing ~/.arinanox cache..."
+rm -rf ~/.arinanox
+echo "  [x] ~/.arinanox removed"
 
 # 6. Clean Termux tmp
 echo ""
@@ -102,12 +102,12 @@ echo "  [x] run-api-bridge.sh removed"
 
 echo ""
 echo "╔═══════════════════════════════════╗"
-echo "║  ✅ DroidDesk uninstalled         ║"
+echo "║  ✅ arinanoX uninstalled         ║"
 echo "╠═══════════════════════════════════╣"
 echo "║                                   ║"
 echo "║  To reinstall:                    ║"
 echo "║  curl -sL URL/bootstrap.sh | bash ║"
 echo "║                                   ║"
-echo "║  To remove ~/DroidDesk repo:      ║"
-echo "║  rm -rf ~/DroidDesk               ║"
+echo "║  To remove ~/arinanoX repo:      ║"
+echo "║  rm -rf ~/arinanoX               ║"
 echo "╚═══════════════════════════════════╝"

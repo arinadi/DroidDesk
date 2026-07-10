@@ -1,7 +1,7 @@
 #!/bin/bash
 # ═══════════════════════════════════════════
-#  DroidDesk — Termux:API Bridge Utilities
-#  Source this in .bashrc: source ~/.droiddesk/tools/tapi-utils.sh
+#  arinanoX — Termux:API Bridge Utilities
+#  Source this in .bashrc: source ~/.arinanox/tools/tapi-utils.sh
 # ═══════════════════════════════════════════
 
 # --- API bridge (tapi command already in /usr/local/bin/tapi) ---
@@ -78,8 +78,8 @@ clipboard-watch() {
         echo "Clipboard sync already running."
         return
     fi
-    nohup bash ~/.droiddesk/tools/clipboard-sync.sh > /dev/null 2>&1 &
+    nohup bash ~/.arinanox/tools/clipboard-sync.sh > /dev/null 2>&1 &
     echo "Clipboard sync started (Android ↔ proot)."
 }
 
-echo "📱 DroidDesk TAPI utils loaded. Try: battery, clipget, clipset, bright 50, buzz"
+echo "📱 arinanoX TAPI utils loaded. Try: battery, clipget, clipset, bright 50, buzz"

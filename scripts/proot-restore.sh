@@ -1,14 +1,14 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-# ⚠️  MANUAL TOOL — only run AFTER updating DroidDesk
+# ⚠️  MANUAL TOOL — only run AFTER updating arinanoX
 # Usage: see proot-backup.sh header
 
 # proot-restore.sh — Restore user layer on top of fresh image
 # Restores: home directory + user-installed packages
 
-CONTAINER="droiddesk"
-BACKUP_DIR="$HOME/.droiddesk/backups"
+CONTAINER="arinanox"
+BACKUP_DIR="$HOME/.arinanox/backups"
 ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/containers/${CONTAINER}/rootfs"
 
 LATEST_PKG="${BACKUP_DIR}/packages-latest.txt"

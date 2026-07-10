@@ -1,18 +1,18 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-# ⚠️  MANUAL TOOL — only run BEFORE updating DroidDesk
+# ⚠️  MANUAL TOOL — only run BEFORE updating arinanoX
 # Usage:
-#   1. bash ~/.droiddesk/scripts/proot-backup.sh
+#   1. bash ~/.arinanox/scripts/proot-backup.sh
 #   2. bash ~/update.sh  (fresh install)
-#   3. bash ~/.droiddesk/scripts/proot-restore.sh
-#   4. bash ~/.droiddesk/scripts/patch.sh  (reinstall your packages)
+#   3. bash ~/.arinanox/scripts/proot-restore.sh
+#   4. bash ~/.arinanox/scripts/patch.sh  (reinstall your packages)
 
 # proot-backup.sh — Backup user layer before proot reset
 # Saves: installed packages (user-installed only) + home directory
 
-CONTAINER="droiddesk"
-BACKUP_DIR="$HOME/.droiddesk/backups"
+CONTAINER="arinanox"
+BACKUP_DIR="$HOME/.arinanox/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/containers/${CONTAINER}/rootfs"
 

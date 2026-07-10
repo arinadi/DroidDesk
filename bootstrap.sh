@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # ══════════════════════════════════════════
-#  DroidDesk Bootstrap — curl | bash
-#  https://github.com/arinadi/DroidDesk
+#  arinanoX Bootstrap — curl | bash
+#  https://github.com/arinadi/arinanoX
 # ══════════════════════════════════════════
 
-REPO="https://raw.githubusercontent.com/arinadi/DroidDesk/main"
-DROIDDESK_DIR="$HOME/.droiddesk"
+REPO="https://raw.githubusercontent.com/arinadi/arinanoX/main"
+DROIDDESK_DIR="$HOME/.arinanox"
 SCRIPTS_DIR="${DROIDDESK_DIR}/scripts"
 LAUNCHERS_DIR="${DROIDDESK_DIR}/launchers"
 
@@ -34,7 +34,7 @@ fi
 if $INTERACTIVE; then
     echo ""
     echo "╔═══════════════════════════════════════╗"
-    echo "║  📱 DroidDesk — Linux on Android      ║"
+    echo "║  📱 arinanoX — Linux on Android      ║"
     echo "╠═══════════════════════════════════════╣"
 
     if $INSTALLED; then
@@ -77,13 +77,13 @@ else
     # Non-interactive (curl | bash): auto-detect action
     if $INSTALLED; then
         if [ "$REMOTE_VER" = "$LOCAL_VER" ]; then
-            echo ">>> DroidDesk v${LOCAL_VER} — already up to date."
+            echo ">>> arinanoX v${LOCAL_VER} — already up to date."
             exit 0
         fi
-        echo ">>> DroidDesk v${LOCAL_VER} → updating to v${REMOTE_VER}..."
+        echo ">>> arinanoX v${LOCAL_VER} → updating to v${REMOTE_VER}..."
         ACTION="update"
     else
-        echo ">>> Installing DroidDesk v${REMOTE_VER}..."
+        echo ">>> Installing arinanoX v${REMOTE_VER}..."
         ACTION="install"
     fi
 fi
@@ -98,7 +98,7 @@ fi
 
 # --- Install / Update ---
 if [ "$ACTION" = "install" ]; then
-    echo ">>> Installing DroidDesk v${REMOTE_VER}..."
+    echo ">>> Installing arinanoX v${REMOTE_VER}..."
     rm -rf "$DROIDDESK_DIR"
     mkdir -p "$SCRIPTS_DIR" "$LAUNCHERS_DIR"
 elif [ "$ACTION" = "update" ]; then
@@ -154,7 +154,7 @@ echo "$REMOTE_VER" > "$DROIDDESK_DIR/version.txt"
 
 echo ""
 echo "╔═══════════════════════════════════════╗"
-echo "║  ✅ DroidDesk v${REMOTE_VER} complete!        ║"
+echo "║  ✅ arinanoX v${REMOTE_VER} complete!        ║"
 echo "╠═══════════════════════════════════════╣"
 echo "║                                       ║"
 echo "║  Start:                               ║"
@@ -166,8 +166,8 @@ echo "║    bash ~/kill-all.sh                 ║"
 echo "║                                       ║"
 echo "║  Built-in: Firefox ESR, Node 22, Go,  ║"
 echo "║  Python, Git, GCC/CMake, Mousepad...  ║"
-echo "║  More: ~/.droiddesk/scripts/patch.sh  ║"
+echo "║  More: ~/.arinanox/scripts/patch.sh  ║"
 echo "║                                       ║"
 echo "║  Uninstall:                           ║"
-echo "║    bash ~/DroidDesk/uninstall.sh      ║"
+echo "║    bash ~/arinanoX/uninstall.sh      ║"
 echo "╚═══════════════════════════════════════╝"

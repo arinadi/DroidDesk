@@ -1,16 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # ═══════════════════════════════════════════
-#  DroidDesk Status — Silverblue-style system overview
-#  Usage: bash ~/.droiddesk/scripts/status.sh
+#  arinanoX Status — Silverblue-style system overview
+#  Usage: bash ~/.arinanox/scripts/status.sh
 # ═══════════════════════════════════════════
 
-DROIDDESK_DIR="$HOME/.droiddesk"
-CONTAINER="droiddesk"
-PREV_CONTAINER="droiddesk-prev"
+DROIDDESK_DIR="$HOME/.arinanox"
+CONTAINER="arinanox"
+PREV_CONTAINER="arinanox-prev"
 ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/containers/${CONTAINER}/rootfs"
 
 echo "╔═══════════════════════════════════════╗"
-echo "║  📱 DroidDesk System Status           ║"
+echo "║  📱 arinanoX System Status           ║"
 echo "╠═══════════════════════════════════════╣"
 
 # Version
@@ -21,7 +21,7 @@ fi
 # Current deployment
 if [ -d "$ROOTFS" ]; then
     SIZE=$(du -sh "$ROOTFS" 2>/dev/null | cut -f1)
-    echo "║  Current:  droiddesk ($SIZE)"
+    echo "║  Current:  arinanox ($SIZE)"
 else
     echo "║  Current:  NOT INSTALLED"
 fi
@@ -30,7 +30,7 @@ fi
 PREV_ROOTFS="/data/data/com.termux/files/usr/var/lib/proot-distro/containers/${PREV_CONTAINER}/rootfs"
 if [ -d "$PREV_ROOTFS" ]; then
     SIZE=$(du -sh "$PREV_ROOTFS" 2>/dev/null | cut -f1)
-    echo "║  Rollback: droiddesk-prev ($SIZE)"
+    echo "║  Rollback: arinanox-prev ($SIZE)"
 fi
 
 echo "╠═══════════════════════════════════════╣"
@@ -54,7 +54,7 @@ echo "╠═══════════════════════�
 if [ -f "$DROIDDESK_DIR/layers.txt" ]; then
     COUNT=$(wc -l < "$DROIDDESK_DIR/layers.txt")
     echo "║  Layered:  $COUNT packages"
-    echo "║  (bash ~/.droiddesk/scripts/patch.sh)"
+    echo "║  (bash ~/.arinanox/scripts/patch.sh)"
 else
     echo "║  Layered:  0 (use patch.sh to add)"
 fi
@@ -72,5 +72,5 @@ fi
 echo "╚═══════════════════════════════════════╝"
 echo ""
 echo "  Update:  bash ~/update.sh"
-echo "  Rollback: bash ~/.droiddesk/scripts/proot-rollback.sh"
-echo "  Status:  bash ~/.droiddesk/scripts/status.sh"
+echo "  Rollback: bash ~/.arinanox/scripts/proot-rollback.sh"
+echo "  Status:  bash ~/.arinanox/scripts/status.sh"

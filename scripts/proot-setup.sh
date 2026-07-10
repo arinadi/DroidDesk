@@ -2,16 +2,16 @@
 set -euo pipefail
 
 # ═══════════════════════════════════════════
-#  DroidDesk proot-setup — Silverblue-style
+#  arinanoX proot-setup — Silverblue-style
 #  Atomic: keep previous deployment for rollback
 # ═══════════════════════════════════════════
 
-IMAGE="ghcr.io/arinadi/droiddesk:latest"
-CONTAINER="droiddesk"
-PREV_CONTAINER="droiddesk-prev"
+IMAGE="ghcr.io/arinadi/arinanox:latest"
+CONTAINER="arinanox"
+PREV_CONTAINER="arinanox-prev"
 CONTAINERS_DIR="/data/data/com.termux/files/usr/var/lib/proot-distro/containers"
 
-echo ">>> Setting up DroidDesk proot..."
+echo ">>> Setting up arinanoX proot..."
 
 # Stage: keep current as "previous" for rollback
 if [ -d "${CONTAINERS_DIR}/${CONTAINER}" ]; then
@@ -23,8 +23,8 @@ if [ -d "${CONTAINERS_DIR}/${CONTAINER}" ]; then
     echo "  [*] Previous deployment saved: $PREV_CONTAINER"
 fi
 
-echo "  [*] Pulling DroidDesk image..."
+echo "  [*] Pulling arinanoX image..."
 proot-distro install "$IMAGE" --name "$CONTAINER"
 
-echo "  [+] DroidDesk proot ready."
-echo "  [+] Rollback available: bash ~/.droiddesk/scripts/proot-rollback.sh"
+echo "  [+] arinanoX proot ready."
+echo "  [+] Rollback available: bash ~/.arinanox/scripts/proot-rollback.sh"

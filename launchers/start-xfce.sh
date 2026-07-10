@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 echo ">>> Starting XFCE Desktop..."
-proot-distro login droiddesk --shared-tmp -- su - admin -c '
+proot-distro login arinanox --shared-tmp -- su - admin -c '
     export DISPLAY=:0
     export PULSE_SERVER=tcp:127.0.0.1:4713
     export LIBGL_ALWAYS_SOFTWARE=1

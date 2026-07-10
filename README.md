@@ -1,9 +1,10 @@
 <div align="center">
-  <h1>📱 DroidDesk</h1>
+  <h1>📱 arinanoX</h1>
   <p><strong>Your phone is a Linux workstation.</strong></p>
   <p>Debian 13 + XFCE + Firefox ESR + dev tools — running natively on Android.</p>
+  <p><a href="https://arinano.work">arinano.work</a></p>
 
-  <img src="docs/droiddesk-screenshot.jpg" alt="DroidDesk" width="320" style="border-radius:12px;margin:16px 0;">
+  <img src="docs/arinanox-screenshot.jpg" alt="arinanoX" width="320" style="border-radius:12px;margin:16px 0;">
 </div>
 
 ---
@@ -11,7 +12,7 @@
 ## ⚡ Install
 
 ```bash
-curl -sL "https://raw.githubusercontent.com/arinadi/DroidDesk/main/bootstrap.sh" | bash
+curl -sL "https://raw.githubusercontent.com/arinadi/arinanoX/main/bootstrap.sh" | bash
 ```
 
 Installs XFCE desktop, launchers, and all built-in tools. **Under 30 seconds.**
@@ -33,13 +34,13 @@ Installs XFCE desktop, launchers, and all built-in tools. **Under 30 seconds.**
 │  VS Code, Chromium, Ollama, etc.    │     Preserved across updates
 ├─────────────────────────────────────┤
 │  CORE LAYER (declarative & reproducible) │  ← Built from Dockerfile in CI
-│  Debian 13 + XFCE + Firefox + dev   │     ghcr.io/arinadi/droiddesk
+│  Debian 13 + XFCE + Firefox + dev   │     ghcr.io/arinadi/arinanox
 └─────────────────────────────────────┘
 ```
 
 ### Declarative Image (NixOS-inspired)
 
-The image is built from a **single Dockerfile** — your system as code:
+The image is built from a **single Dockerfile** — your system as code. **X** = XFCE, X11, LinuX, TermuX, eXperience.
 
 - 📦 **All packages, configs, and themes** defined declaratively in one file
 - ⚙️ **XFCE optimized for proot**: compositing off, DPI/scale, touch-friendly
@@ -47,9 +48,9 @@ The image is built from a **single Dockerfile** — your system as code:
 - 🎯 **Proot-aware**: systemd warnings suppressed, power daemon removed, dbus locked down
 - ⚡ **CI-built and deployed** to GHCR on every push
 
-**Silverblue-style atomic upgrades:** `bash ~/update.sh` renames the old deployment to `droiddesk-prev` before deploying the new image. Instant rollback: `bash ~/.droiddesk/scripts/proot-rollback.sh`.
+**Silverblue-style atomic upgrades:** `bash ~/update.sh` renames the old deployment to `arinanox-prev` before deploying the new image. Instant rollback: `bash ~/.arinanox/scripts/proot-rollback.sh`.
 
-| Concept | NixOS | DroidDesk |
+| Concept | NixOS | arinanoX |
 |---------|-------|-----------|
 | System definition | `configuration.nix` | `image/Dockerfile` |
 | Packages | declarative list | `RUN apt-get install` |
@@ -65,7 +66,7 @@ The image is built from a **single Dockerfile** — your system as code:
 
 ### Prebuilt vs DIY
 
-| | DroidDesk (prebuilt) | DIY (manual install) |
+| | arinanoX (prebuilt) | DIY (manual install) |
 |---|---|---|
 | Download | **~580 MB** (1 image) | ~450 MB (base distro) + packages |
 | Install time | **~30s** (extract + setup) | **20-30 min** (apt + config + theme) |
@@ -98,9 +99,9 @@ The image is built from a **single Dockerfile** — your system as code:
 ### Install more with patch
 
 ```bash
-bash ~/.droiddesk/scripts/patch.sh                    # Interactive
-bash ~/.droiddesk/scripts/patch.sh --chromium --code --zsh
-bash ~/.droiddesk/scripts/patch.sh --list
+bash ~/.arinanox/scripts/patch.sh                    # Interactive
+bash ~/.arinanox/scripts/patch.sh --chromium --code --zsh
+bash ~/.arinanox/scripts/patch.sh --list
 ```
 
 | Category | Packages |
@@ -122,7 +123,7 @@ bash ~/start-x11.sh    # X11 server + PulseAudio
 bash ~/start-xfce.sh   # XFCE desktop
 
 bash ~/kill-all.sh     # Stop everything
-bash ~/update.sh       # Update DroidDesk
+bash ~/update.sh       # Update arinanoX
 ```
 
 ### 📱 Termux:Widget (1-tap launchers)
@@ -146,7 +147,7 @@ bash ~/update.sh       # Update DroidDesk
 | `bash ~/start-xfce.sh` | Start XFCE desktop |
 | `bash ~/kill-all.sh` | Stop everything |
 | `bash ~/update.sh` | Update |
-| `bash ~/.droiddesk/scripts/patch.sh` | Install software |
+| `bash ~/.arinanox/scripts/patch.sh` | Install software |
 
 ### Termux:API (inside proot terminal)
 
@@ -168,15 +169,15 @@ bash ~/update.sh       # Update DroidDesk
 ### Panel Widgets (Whisker Menu → Panel → Add → Generic Monitor)
 
 ```
-bash ~/.droiddesk/tools/genmon-battery.sh   # 🔋
-bash ~/.droiddesk/tools/genmon-volume.sh    # 🔊
+bash ~/.arinanox/tools/genmon-battery.sh   # 🔋
+bash ~/.arinanox/tools/genmon-volume.sh    # 🔊
 ```
 
 ---
 
-## 💡 Why DroidDesk?
+## 💡 Why arinanoX?
 
-| Problem | DroidDesk Solution |
+| Problem | arinanoX Solution |
 |---------|-------------------|
 | Chrome sleeps tabs | Firefox ESR desktop browser — stays alive |
 | No glibc apps | Debian 13 proot — standard glibc |
@@ -197,7 +198,7 @@ bash ~/.droiddesk/tools/genmon-volume.sh    # 🔊
 | No native X11 | Termux:X11 app |
 | Storage restrictions | `termux-setup-storage` |
 
-All warnings (systemd proxy, system bus, DPMS, GL renderer) are suppressed at the declarative layer — DroidDesk runs clean out of the box.
+All warnings (systemd proxy, system bus, DPMS, GL renderer) are suppressed at the declarative layer — arinanoX runs clean out of the box.
 
 **Cannot do:** Docker containers, GPU hardware access, systemd services, x86 natively.
 
@@ -213,7 +214,7 @@ All warnings (systemd proxy, system bus, DPMS, GL renderer) are suppressed at th
 ## 📂 Structure
 
 ```
-DroidDesk/
+arinanoX/
 ├── bootstrap.sh          ← one-command entry point
 ├── image/                ← 🎯 System definition (Dockerfile)
 │   ├── Dockerfile        ←    declarative: packages, configs, themes

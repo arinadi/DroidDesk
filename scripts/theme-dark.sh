@@ -1,13 +1,13 @@
 #!/bin/bash
 # ═══════════════════════════════════════════
-#  DroidDesk Dark Mobile Theme
+#  arinanoX Dark Mobile Theme
 #  Blackbird GTK + xfwm4 + Adwaita icons + 64px panel
 # ═══════════════════════════════════════════
 
 CONF_DIR="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml"
 mkdir -p "$CONF_DIR"
 
-echo ">>> Applying DroidDesk Dark Mobile Theme..."
+echo ">>> Applying arinanoX Dark Mobile Theme..."
 
 # ── xsettings: Orchis-Dark, elementary-xfce-hidpi, DPI 144 (1.5x) ──
 cat > "$CONF_DIR/xsettings.xml" << 'XEOF'

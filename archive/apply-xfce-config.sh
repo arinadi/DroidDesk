@@ -1,11 +1,11 @@
 #!/bin/bash
-# 📱 DroidDesk XFCE Pre-config Applier
+# 📱 arinanoX XFCE Pre-config Applier
 # Focus: Panel (64px), WM (Yaru-dark), GTK Settings (DPI 140, Large Cursor)
 
 # 0. If running on Termux host, re-run inside PRoot
 if [ -n "$TERMUX_VERSION" ]; then
     echo ">>> Detected Termux host. Logging into Ubuntu to apply config..."
-    proot-distro login ubuntu -- su - admin -c "bash ~/DroidDesk/apply-xfce-config.sh"
+    proot-distro login ubuntu -- su - admin -c "bash ~/arinanoX/apply-xfce-config.sh"
     exit $?
 fi
 
@@ -117,4 +117,4 @@ cat <<EOF > "$CONF_DIR/xfce4-desktop.xml"
 </channel>
 EOF
 
-echo ">>> DroidDesk pre-config applied. Please restart XFCE session."
+echo ">>> arinanoX pre-config applied. Please restart XFCE session."

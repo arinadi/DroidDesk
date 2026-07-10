@@ -1,10 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-# patch.sh — Install optional software into DroidDesk proot
+# patch.sh — Install optional software into arinanoX proot
 # Interactive (no args) or CLI (with flags)
 
-CONTAINER="droiddesk"
+CONTAINER="arinanox"
 
 declare -A PATCHES
 
@@ -72,7 +72,7 @@ fi
 if $INTERACTIVE; then
     echo ""
     echo "╔═══════════════════════════════════╗"
-    echo "║  📦 DroidDesk Patch Installer     ║"
+    echo "║  📦 arinanoX Patch Installer     ║"
     echo "╠═══════════════════════════════════╣"
     echo ""
 
@@ -104,7 +104,7 @@ echo ""
 echo ">>> Installing ${#SELECTED[@]} patches..."
 
 # Track layered packages (Silverblue-style)
-LAYERS_FILE="$HOME/.droiddesk/layers.txt"
+LAYERS_FILE="$HOME/.arinanox/layers.txt"
 touch "$LAYERS_FILE"
 
 for key in "${SELECTED[@]}"; do

@@ -4,7 +4,7 @@
 #  Panel plugin that shows 🔋 percentage
 # ===========================================
 #  Setup: xfce4-panel → Add → Generic Monitor
-#  Command: bash ~/.droiddesk/tools/genmon-battery.sh
+#  Command: bash ~/.arinanox/tools/genmon-battery.sh
 #  Interval: 30s
 # ═══════════════════════════════════════════
 
@@ -30,4 +30,4 @@ else                          ICON="🪫"; fi
 
 echo "<txt>${ICON} ${PCT}%</txt>"
 echo "<tool>Battery: ${PCT}% (${STATUS}) | Temp: ${TEMP}°C</tool>"
-echo "<txtclick>bash ~/.droiddesk/tools/tapi-utils.sh battery</txtclick>"
+echo "<txtclick>bash ~/.arinanox/tools/tapi-utils.sh battery</txtclick>"

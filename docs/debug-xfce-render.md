@@ -1,10 +1,10 @@
 ═══════════════════════════════════════
-  PROMPT: Debug DroidDesk XFCE — Desktop Not Rendering
+  PROMPT: Debug arinanoX XFCE — Desktop Not Rendering
 ═══════════════════════════════════════
 
 ## Context
 
-DroidDesk runs XFCE4 desktop inside a Debian 13 proot container on Android/Termux.
+arinanoX runs XFCE4 desktop inside a Debian 13 proot container on Android/Termux.
 Display: Termux:X11 app (termux-x11 nighty). Audio: PulseAudio TCP bridge.
 
 Launch flow:
@@ -16,9 +16,9 @@ Launch flow:
 - XFCE4-session + xfwm4 processes appear (confirmed via ps)
 - "X server already running on display :0" message shows (X11 is up)
 - But nothing renders on screen — Termux:X11 app shows black/blank
-- This is a fresh Debian 13 image (ghcr.io/arinadi/droiddesk:latest)
+- This is a fresh Debian 13 image (ghcr.io/arinadi/arinanox:latest)
 
-## Key scripts (refer to DroidDesk repo)
+## Key scripts (refer to arinanoX repo)
 
 launchers/start-x11.sh    — starts pulseaudio, loads TCP module, termux-x11 :0
 launchers/start-xfce.sh   — proot login, binds X11 socket, dbus-launch startxfce4
@@ -61,12 +61,12 @@ Not installed: xfce4-goodies, lightdm, gdm3, gnome-*
 5. PROOT BIND MOUNTS
    - `--shared-tmp` vs explicit `--bind` for X11 socket — conflict?
    - Does `/tmp/.X11-unix` inside proot see the socket?
-   - Check: `proot-distro login droiddesk -- ls -la /tmp/.X11-unix/`
+   - Check: `proot-distro login arinanox -- ls -la /tmp/.X11-unix/`
 
 6. ALTERNATIVE WMs
    - If XFCE fails, does a bare window manager work?
-   - Test: `proot-distro login droiddesk -- DISPLAY=:0 xfwm4 --replace &`
-   - Test: `proot-distro login droiddesk -- DISPLAY=:0 xterm`
+   - Test: `proot-distro login arinanox -- DISPLAY=:0 xfwm4 --replace &`
+   - Test: `proot-distro login arinanox -- DISPLAY=:0 xterm`
 
 7. TERMUX:X11 VERSION
    - What version of termux-x11-nightly is installed?

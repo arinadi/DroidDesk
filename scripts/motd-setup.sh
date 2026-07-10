@@ -6,7 +6,7 @@ echo ">>> Setting up MOTD..."
 cat > /data/data/com.termux/files/usr/etc/motd << 'MOTDEOF'
 
 ==========================================
- 📱 DroidDesk Proot XFCE
+ 📱 arinanoX Proot XFCE
 ==========================================
 
  Start:
@@ -18,7 +18,7 @@ cat > /data/data/com.termux/files/usr/etc/motd << 'MOTDEOF'
     bash ~/kill-all.sh         (stop ALL)
     bash ~/kill-proot.sh       (stop XFCE only)
     bash ~/kill-x11.sh         (stop X11/Audio only)
-    bash ~/update.sh           (update DroidDesk)
+    bash ~/update.sh           (update arinanoX)
 
  User: admin / Pass: admin
 ==========================================

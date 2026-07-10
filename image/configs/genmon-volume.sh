@@ -4,7 +4,7 @@
 #  Panel plugin that shows 🔊 volume level
 # ===========================================
 #  Setup: xfce4-panel → Add → Generic Monitor
-#  Command: bash ~/.droiddesk/tools/genmon-volume.sh
+#  Command: bash ~/.arinanox/tools/genmon-volume.sh
 #  Interval: 5s
 # ═══════════════════════════════════════════
 
