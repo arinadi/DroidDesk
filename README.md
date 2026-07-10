@@ -63,6 +63,22 @@ The image is built from a **single Dockerfile** — your system as code:
 
 **Update:** `bash ~/update.sh` pulls latest GHCR image, re-deploys as new atomic generation.
 
+### Prebuilt vs DIY
+
+| | DroidDesk (prebuilt) | DIY (manual install) |
+|---|---|---|
+| Download | **~580 MB** (1 image) | ~450 MB (base distro) + packages |
+| Install time | **~30s** (extract + setup) | **20-30 min** (apt + config + theme) |
+| XFCE desktop | configured, ready | must install + configure |
+| Orchis theme | baked-in | manual install + set |
+| Touch-friendly | scrollbars, single-click, scale 2x | manual GTK config |
+| Proot fixes | compositing off, warnings suppressed, power removed | trial-and-error |
+| TAPI utilities | included | must copy + configure |
+| Rollback | atomic (rename) | manual backup/restore |
+| Updates | `update.sh` (30s) | re-do everything |
+
+**Why prebuilt?** The Dockerfile does 30 minutes of apt installs, config tweaks, and proot optimizations so you skip straight to a working desktop.
+
 ---
 
 ## 📦 Built-In + Extras
