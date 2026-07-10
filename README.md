@@ -2,6 +2,8 @@
   <h1>📱 DroidDesk</h1>
   <p><strong>Your phone is a Linux workstation.</strong></p>
   <p>Debian 13 + XFCE + Firefox ESR + dev tools — running natively on Android.</p>
+
+  <img src="docs/droiddesk-screenshot.jpg" alt="DroidDesk" width="320" style="border-radius:12px;margin:16px 0;">
 </div>
 
 ---
