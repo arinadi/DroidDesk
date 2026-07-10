@@ -42,11 +42,12 @@ cat > "$CONF_DIR/xfwm4.xml" << 'WMEOF'
     <property name="button_layout" type="string" value="O|SHMC"/>
     <property name="borderless_maximize" type="bool" value="true"/>
     <property name="title_font" type="string" value="Sans Bold 11"/>
+    <property name="workspace_count" type="int" value="1"/>
   </property>
 </channel>
 WMEOF
 
-# ── Panel: 64px dark, Whisker Menu ──
+# ── Panel: 64px dark, borderless, Whisker + Tasklist ──
 cat > "$CONF_DIR/xfce4-panel.xml" << 'PEOF'
 <?xml version="1.1" encoding="UTF-8"?>
 <channel name="xfce4-panel" version="1.0">
@@ -58,34 +59,27 @@ cat > "$CONF_DIR/xfce4-panel.xml" << 'PEOF'
       <property name="length" type="uint" value="100"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="size" type="uint" value="64"/>
+      <property name="background-style" type="uint" value="2"/>
+      <property name="background-alpha" type="uint" value="85"/>
       <property name="plugin-ids" type="array">
-        <value type="int" value="1"/><value type="int" value="2"/><value type="int" value="3"/>
-        <value type="int" value="4"/><value type="int" value="5"/><value type="int" value="6"/>
-        <value type="int" value="7"/><value type="int" value="8"/>
+        <value type="int" value="1"/>
+        <value type="int" value="2"/>
       </property>
     </property>
   </property>
   <property name="plugins" type="empty">
-    <property name="plugin-1" type="string" value="whiskermenu"/>
+    <property name="plugin-1" type="string" value="whiskermenu">
+      <property name="show-menu-icons" type="bool" value="true"/>
+      <property name="show-generic-names" type="bool" value="false"/>
+      <property name="recent-items-max" type="int" value="5"/>
+      <property name="view-mode" type="uint" value="1"/>
+      <property name="open-at-mouse" type="bool" value="false"/>
+    </property>
     <property name="plugin-2" type="string" value="tasklist">
       <property name="show-labels" type="bool" value="false"/>
       <property name="grouping" type="uint" value="1"/>
       <property name="icon-size" type="uint" value="48"/>
     </property>
-    <property name="plugin-3" type="string" value="separator">
-      <property name="expand" type="bool" value="true"/>
-    </property>
-    <property name="plugin-4" type="string" value="pager"/>
-    <property name="plugin-5" type="string" value="pulseaudio">
-      <property name="show-notifications" type="bool" value="false"/>
-    </property>
-    <property name="plugin-6" type="string" value="systray">
-      <property name="icon-size" type="uint" value="32"/>
-    </property>
-    <property name="plugin-7" type="string" value="clock">
-      <property name="mode" type="uint" value="4"/>
-    </property>
-    <property name="plugin-8" type="string" value="actions"/>
   </property>
 </channel>
 PEOF
@@ -121,7 +115,7 @@ echo "╠═══════════════════════�
 echo "║  GTK:   Orchis-Dark (Material)     ║"
 echo "║  Icons: elementary-xfce-hidpi      ║"
 echo "║  WM:    Orchis-Dark-xhdpi          ║"
-echo "║  Panel: 64px dark, 8 plugins       ║"
+echo "║  Panel: 64px borderless, 2 plugins  ║"
 echo "║  DPI:   96 (Scale 2x)   ║"
 echo "║  Font:  Sans 12                    ║"
 echo "║  Cursor: 24px (2x → 48px)                      ║"
