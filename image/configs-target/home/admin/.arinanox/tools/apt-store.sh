@@ -151,11 +151,11 @@ do_sources() {
 do_add_repo() {
     local tmpfile="$TMP/addrepo-args"
     > "$tmpfile"
-    echo "📖 VS Code|Microsoft Visual Studio Code (ARM64)" >> "$tmpfile"
-    echo "🦊 Firefox|Mozilla Firefox latest (non-ESR)" >> "$tmpfile"
-    echo "🐳 Docker|Docker Engine (ARM64)" >> "$tmpfile"
-    echo "☕ OpenJDK|Temurin JDK (Eclipse Adoptium)" >> "$tmpfile"
-    echo "✏️ Custom|Add APT repository manually" >> "$tmpfile"
+    echo "VS Code|Microsoft Visual Studio Code (ARM64)" >> "$tmpfile"
+    echo "Firefox|Mozilla Firefox latest (non-ESR)" >> "$tmpfile"
+    echo "Docker|Docker Engine (ARM64)" >> "$tmpfile"
+    echo "OpenJDK|Temurin JDK (Eclipse Adoptium)" >> "$tmpfile"
+    echo "Custom|Add APT repository manually" >> "$tmpfile"
 
     local choice
     choice=$($YAD --title="Add Repository" \
@@ -173,27 +173,27 @@ do_add_repo() {
     local repo key_url key_name
 
     case "$opt" in
-        "📖 VS Code")
+        "VS Code")
             repo="deb [arch=arm64] https://packages.microsoft.com/repos/code stable main"
             key_url="https://packages.microsoft.com/keys/microsoft.asc"
             key_name="microsoft"
             ;;
-        "🦊 Firefox")
+        "Firefox")
             repo="deb [arch=arm64] http://packages.mozilla.org/apt mozilla main"
             key_url="https://packages.mozilla.org/apt/repo-signing-key.gpg"
             key_name="mozilla"
             ;;
-        "🐳 Docker")
+        "Docker")
             repo="deb [arch=arm64] https://download.docker.com/linux/debian trixie stable"
             key_url="https://download.docker.com/linux/debian/gpg"
             key_name="docker"
             ;;
-        "☕ OpenJDK")
+        "OpenJDK")
             repo="deb [arch=arm64] https://packages.adoptium.net/artifactory/deb trixie main"
             key_url="https://packages.adoptium.net/artifactory/api/gpg/key/public"
             key_name="adoptium"
             ;;
-        "✏️ Custom")
+        "Custom")
             add_custom_repo
             return
             ;;
