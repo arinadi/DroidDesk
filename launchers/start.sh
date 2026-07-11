@@ -20,12 +20,18 @@ else
     echo "  • doctor not available"
 fi
 
+export XDG_RUNTIME_DIR="$TMPDIR"
+
 # ── [1/3] Start all services in parallel ────────────────────
 echo ">>> [1/3] Starting services..."
 
-# PulseAudio
+# PulseAudio — clean stale state first
+killall pulseaudio 2>/dev/null || true
+rm -rf "${TMPDIR}/pulse" 2>/dev/null || true
+sleep 0.3
 pulseaudio --start --exit-idle-time=-1 2>/dev/null &
 PA_PID=$!
+sleep 0.5
 pactl load-module module-aaudio-sink 2>/dev/null || \
 pactl load-module module-sles-sink 2>/dev/null || true
 pactl load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 \
@@ -51,7 +57,6 @@ elif command -v virgl_test_server &>/dev/null && [ -d "${ANGLE_DIR}/vulkan" ]; t
 fi
 
 # X11
-export XDG_RUNTIME_DIR="$TMPDIR"
 termux-x11 :0 -ac &
 X11_PID=$!
 
