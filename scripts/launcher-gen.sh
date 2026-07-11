@@ -5,20 +5,23 @@ echo ">>> Installing launchers..."
 DROIDDESK_DIR="$HOME/.arinanox"
 mkdir -p ~/.shortcuts
 
-# Remove old launchers
-rm -f ~/.shortcuts/start-x11.sh ~/.shortcuts/start-xfce.sh
-rm -f ~/.shortcuts/kill-x11.sh ~/.shortcuts/kill-proot.sh ~/.shortcuts/kill-all.sh
-rm -f ~/start-x11.sh ~/start-xfce.sh ~/kill-x11.sh ~/kill-proot.sh ~/kill-all.sh
+# Remove old launchers (v1 + v2)
+rm -f ~/.shortcuts/{start,stop,update}{,-x11,-xfce,-arinanox,-proot}.sh 2>/dev/null || true
+rm -f ~/.shortcuts/kill-{x11,proot,all}.sh 2>/dev/null || true
+rm -f ~/{start,stop,update}{,-x11,-xfce,-arinanox}.sh 2>/dev/null || true
+rm -f ~/kill-{x11,proot,all}.sh 2>/dev/null || true
 
-# Install new unified launchers
-for f in start.sh stop.sh update.sh; do
-    cp "${DROIDDESK_DIR}/launchers/${f}" ~/.shortcuts/"${f}"
-    chmod +x ~/.shortcuts/"${f}"
-    ln -sf ~/.shortcuts/"${f}" ~/"${f}"
-done
+# Install branded shortcuts (ordered)
+cp "${DROIDDESK_DIR}/launchers/stop.sh"   ~/.shortcuts/0-stop-arinanox.sh
+cp "${DROIDDESK_DIR}/launchers/start.sh"  ~/.shortcuts/1-start-arinanox.sh
+cp "${DROIDDESK_DIR}/launchers/update.sh" ~/.shortcuts/2-update-arinanox.sh
+chmod +x ~/.shortcuts/0-stop-arinanox.sh
+chmod +x ~/.shortcuts/1-start-arinanox.sh
+chmod +x ~/.shortcuts/2-update-arinanox.sh
 
-# Legacy shortcut
-ln -sf update.sh ~/.shortcuts/update-arinanox.sh 2>/dev/null || true
-ln -sf ~/update.sh ~/update-arinanox.sh 2>/dev/null || true
+# Home convenience symlinks
+ln -sf ~/.shortcuts/0-stop-arinanox.sh   ~/stop.sh
+ln -sf ~/.shortcuts/1-start-arinanox.sh  ~/start.sh
+ln -sf ~/.shortcuts/2-update-arinanox.sh ~/update.sh
 
 echo ">>> Launchers installed."

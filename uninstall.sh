@@ -51,7 +51,7 @@ fi
 # 3. Remove launcher scripts
 echo ""
 echo ">>> Removing launcher scripts..."
-rm -f ~/.shortcuts/start.sh \
+rm -f ~/.shortcuts/0-stop-arinanox.sh ~/.shortcuts/1-start-arinanox.sh ~/.shortcuts/2-update-arinanox.sh \
       ~/.shortcuts/stop.sh \
       ~/.shortcuts/update.sh \
       ~/.shortcuts/update-arinanox.sh

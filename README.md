@@ -94,7 +94,7 @@ The image is built from a **single Dockerfile** — your system as code.
 | Proot fixes | compositing off, warnings suppressed, power removed | trial-and-error |
 | TAPI utilities | included | must copy + configure |
 | Rollback | atomic (rename) | manual backup/restore |
-| Updates | `update.sh` (30s) | re-do everything |
+| Updates | `2-update-arinanox.sh` (30s) | re-do everything |
 
 **Why prebuilt?** The Dockerfile does 30 minutes of apt installs, config tweaks, and proot optimizations so you skip straight to a working desktop.
 
@@ -159,9 +159,9 @@ pkg install virglrenderer-android
 
 | Shortcut | Action |
 |----------|--------|
-| 🟢 `start.sh` | Full startup |
-| 🔴 `stop.sh` | Full stop |
-| 🔄 `update.sh` | Update |
+| 🟢 `1-start-arinanox.sh` | Full startup |
+| 🔴 `0-stop-arinanox.sh` | Full stop |
+| 🔄 `2-update-arinanox.sh` | Update |
 
 ---
 
