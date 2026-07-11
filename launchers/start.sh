@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # ═══════════════════════════════════════════════════════════════
 # arinanoX — Start (unified launcher)
-#  PulseAudio → X11 → virgl (auto ANGLE→android→CPU) → XFCE
+#  PulseAudio → X11 → virgl (auto) → XFCE desktop
 # ═══════════════════════════════════════════════════════════════
 set -euo pipefail
 
@@ -34,71 +34,56 @@ echo "  ✓ X11 running"
 echo ">>> [4/4] Desktop..."
 VIRGL_MODE="cpu"
 
-# Try 1: virglrenderer-android (native GLES, works best on most devices)
+# 1: android (native GLES) — best for most devices
 if command -v virgl_test_server_android &>/dev/null; then
-    echo "  ✓ virglrenderer-android — starting GPU server..."
+    echo "  ✓ android GPU — starting server..."
     virgl_test_server_android &>/dev/null &
     sleep 1
     VIRGL_MODE="android"
 
-# Try 2: ANGLE + Vulkan (Xclipse/Mali with Vulkan, fallback)
-elif command -v virgl_test_server &>/dev/null && [ -d "$ANGLE_DIR/vulkan-null" ]; then
-    # Ensure ANGLE lib symlinks exist
-    for lib in libEGL_angle.so libGLESv1_CM_angle.so libGLESv2_angle.so; do
-        base="${lib%_angle.so}"
-        so_ver=""
-        case "$base" in libEGL) so_ver=".1" ;; libGLESv1_CM) so_ver=".1" ;; libGLESv2) so_ver=".2" ;; esac
-        [ ! -f "${ANGLE_DIR}/vulkan/${base}${so_ver}" ] && \
-            ln -sf "${ANGLE_DIR}/vulkan/${lib}" "${ANGLE_DIR}/vulkan/${base}${so_ver}" 2>/dev/null || true
-    done
-
-    echo "  ✓ ANGLE+vulkan-null path — starting GPU server..."
+# 2: angle + vulkan-null (faster passthrough)
+elif command -v virgl_test_server &>/dev/null && [ -d "${ANGLE_DIR}/vulkan-null" ]; then
+    echo "  ✓ ANGLE+vulkan-null — starting server..."
     LD_LIBRARY_PATH="${ANGLE_DIR}/vulkan-null" virgl_test_server --use-egl-surfaceless --use-gles &>/dev/null &
     sleep 1
     VIRGL_MODE="angle-vulkan-null"
 
-# Try 3: ANGLE + Vulkan (direct)
-elif command -v virgl_test_server &>/dev/null && [ -d "$ANGLE_DIR/vulkan" ]; then
-
-# Try 2: virglrenderer-android (native GLES, Snapdragon Adreno)
-elif command -v virgl_test_server_android &>/dev/null; then
-    echo "  ✓ virglrenderer-android — starting GPU server..."
-    virgl_test_server_android &>/dev/null &
+# 3: angle + vulkan (full translation)
+elif command -v virgl_test_server &>/dev/null && [ -d "${ANGLE_DIR}/vulkan" ]; then
+    echo "  ✓ ANGLE+vulkan — starting server..."
+    LD_LIBRARY_PATH="${ANGLE_DIR}/vulkan" virgl_test_server --use-egl-surfaceless --use-gles &>/dev/null &
     sleep 1
-    VIRGL_MODE="android"
+    VIRGL_MODE="angle-vulkan"
 
 else
-    echo "  • virglrenderer not installed (CPU rendering)"
+    echo "  • no GPU server available (CPU rendering)"
 fi
 
 # ── XFCE Desktop ────────────────────────────────────────────
-case "$VIRGL_MODE" in
-    angle-vulkan-null|angle-vulkan|android)
-        echo "  ✓ Launching XFCE with GPU (${VIRGL_MODE})..."
-        proot-distro login arinanox --shared-tmp -- su - admin -c "
-            export DISPLAY=:0
-            export PULSE_SERVER=tcp:127.0.0.1:4713
-            export NO_AT_BRIDGE=1
-            export GALLIUM_DRIVER=virpipe
-            export MESA_GL_VERSION_OVERRIDE=4.1COMPAT
-            export MESA_GLES_VERSION_OVERRIDE=3.1
-            export MESA_NO_ERROR=1
-            export MESA_BACK_BUFFER=pixmap
-            rm -f /tmp/dbus-* 2>/dev/null
-            dbus-launch --exit-with-session xfce4-session
-        "
-        ;;
-    *)
-        echo "  ✓ Launching XFCE (CPU rendering)..."
-        proot-distro login arinanox --shared-tmp -- su - admin -c "
-            export DISPLAY=:0
-            export PULSE_SERVER=tcp:127.0.0.1:4713
-            export NO_AT_BRIDGE=1
-            export LIBGL_ALWAYS_SOFTWARE=1
-            rm -f /tmp/dbus-* 2>/dev/null
-            dbus-launch --exit-with-session xfce4-session
-        "
-        ;;
-esac
+if [ "$VIRGL_MODE" != "cpu" ]; then
+    echo "  ✓ Launching XFCE with GPU (${VIRGL_MODE})..."
+    proot-distro login arinanox --shared-tmp -- su - admin -c "
+        export DISPLAY=:0
+        export PULSE_SERVER=tcp:127.0.0.1:4713
+        export NO_AT_BRIDGE=1
+        export GALLIUM_DRIVER=virpipe
+        export MESA_GL_VERSION_OVERRIDE=4.1COMPAT
+        export MESA_GLES_VERSION_OVERRIDE=3.1
+        export MESA_NO_ERROR=1
+        export MESA_BACK_BUFFER=pixmap
+        rm -f /tmp/dbus-* 2>/dev/null
+        dbus-launch --exit-with-session xfce4-session
+    "
+else
+    echo "  ✓ Launching XFCE (CPU rendering)..."
+    proot-distro login arinanox --shared-tmp -- su - admin -c "
+        export DISPLAY=:0
+        export PULSE_SERVER=tcp:127.0.0.1:4713
+        export NO_AT_BRIDGE=1
+        export LIBGL_ALWAYS_SOFTWARE=1
+        rm -f /tmp/dbus-* 2>/dev/null
+        dbus-launch --exit-with-session xfce4-session
+    "
+fi
 
 echo ">>> arinanoX desktop ended."
