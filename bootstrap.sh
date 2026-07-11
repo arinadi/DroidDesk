@@ -75,6 +75,7 @@ for f in host-setup.sh proot-setup.sh api-bridge-setup.sh xfce-config.sh \
          proot-backup.sh proot-restore.sh \
          proot-rollback.sh patch.sh \
          seccomp-check.sh seccomp-fix.sh doctor.sh \
+         manifest-generate.sh manifest-apply.sh user-snapshot.sh \
          status.sh; do
     curl -sL --retry 2 "${REPO}/scripts/${f}" -o "${SCRIPTS_DIR}/${f}"
     chmod +x "${SCRIPTS_DIR}/${f}"
@@ -85,6 +86,18 @@ for f in start.sh stop.sh update.sh; do
     curl -sL --retry 2 "${REPO}/launchers/${f}" -o "${LAUNCHERS_DIR}/${f}"
     chmod +x "${LAUNCHERS_DIR}/${f}"
 done
+
+echo ">>> Downloading CLI..."
+mkdir -p "${ARINANOX_DIR}/bin"
+curl -sL --retry 2 "${REPO}/scripts/arinanox" -o "${ARINANOX_DIR}/bin/arinanox"
+chmod +x "${ARINANOX_DIR}/bin/arinanox"
+
+# Add to PATH
+if ! grep -q '.arinanox/bin' "$HOME/.bashrc" 2>/dev/null; then
+    echo '' >> "$HOME/.bashrc"
+    echo '# arinanoX CLI' >> "$HOME/.bashrc"
+    echo 'export PATH="$HOME/.arinanox/bin:$PATH"' >> "$HOME/.bashrc"
+fi
 
 echo ">>> Downloading API bridge..."
 curl -sL --retry 2 "${REPO}/run-api-bridge.sh" -o "${ARINANOX_DIR}/run-api-bridge.sh"
@@ -111,9 +124,10 @@ echo "╔═══════════════════════�
 echo "║  ✅ arinanoX ready!                  ║"
 echo "╠═══════════════════════════════════════╣"
 echo "║  Widget:  0-stop · 1-start            ║"
-echo "║  CLI:    bash ~/stop.sh               ║"
-echo "║          bash ~/start.sh              ║"
+echo "║  CLI:    arinanox start               ║"
+echo "║          arinanox stop                ║"
+echo "║          arinanox help                ║"
 echo "║                                       ║"
-echo "║  ⚠️ Update = fresh install             ║"
-echo "║  Wipes user config. See README.       ║"
+echo "║  ⚠️ arinanox update = fresh install    ║"
+echo "║  Run 'arinanox snapshot' first.       ║"
 echo "╚═══════════════════════════════════════╝"

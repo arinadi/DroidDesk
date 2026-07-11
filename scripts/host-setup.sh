@@ -13,6 +13,9 @@ fi
 pkg update -y
 pkg install -y x11-repo tur-repo
 # GPU: virglrenderer (ANGLE path) + virglrenderer-android (fallback)
+# snapshot/backup: rsync for hardlink snapshots
+# python3: manifest parsing (already included, just ensure)
 pkg install -y termux-x11-nightly proot-distro pulseaudio xorg-xrandr netcat-openbsd termux-api \
-              virglrenderer virglrenderer-android angle-android
+              virglrenderer virglrenderer-android angle-android \
+              rsync python3
 echo ">>> Host packages installed."
