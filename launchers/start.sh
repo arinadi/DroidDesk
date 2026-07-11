@@ -9,6 +9,17 @@ TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 ANGLE_DIR="/data/data/com.termux/files/usr/opt/angle-android"
 X11_SOCK="${TMPDIR}/.X11-unix/X0"
 
+# ── [0/3] Health check ─────────────────────────────────────
+echo ">>> [0/3] Health check..."
+DOCTOR_SCRIPT="$HOME/.arinanox/scripts/doctor.sh"
+if [ -f "$DOCTOR_SCRIPT" ]; then
+    if ! bash "$DOCTOR_SCRIPT" 2>/dev/null; then
+        echo "  ⚠ Doctor found issues — continuing anyway..."
+    fi
+else
+    echo "  • doctor not available"
+fi
+
 # ── [1/3] Start all services in parallel ────────────────────
 echo ">>> [1/3] Starting services..."
 

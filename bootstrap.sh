@@ -74,6 +74,7 @@ for f in host-setup.sh proot-setup.sh api-bridge-setup.sh xfce-config.sh \
          launcher-gen.sh motd-setup.sh \
          proot-backup.sh proot-restore.sh \
          proot-rollback.sh patch.sh \
+         seccomp-check.sh seccomp-fix.sh doctor.sh \
          status.sh; do
     curl -sL --retry 2 "${REPO}/scripts/${f}" -o "${SCRIPTS_DIR}/${f}"
     chmod +x "${SCRIPTS_DIR}/${f}"
