@@ -24,14 +24,23 @@ curl -sL https://raw.githubusercontent.com/arinadi/arinanoX/main/bootstrap.sh | 
 
 Your Android phone is a pocket PC with 8GB+ RAM and an ARM64 CPU — it deserves a real desktop.
 
-| | arinanoX |
-|---|---|
+| Problem | arinanoX Solution |
+|---------|-------------------|
+| Chrome sleeps tabs | Firefox ESR desktop browser — stays alive |
+| No glibc apps | Debian 13 proot — standard glibc |
+| No dev tools | Node.js 22, Python 3, GCC, CMake built-in |
+| Background killed | Termux:WakeLock keeps sessions alive |
+| No clipboard bridge | Auto-sync Android ↔ proot |
+
+| Feature | arinanoX |
+|---------|----------|
 | 🏗️ | **Declarative.** A single Dockerfile defines the entire system. Like NixOS, but on Debian. |
 | ⚡ | **Prebuilt.** 580MB image from CI. Extract and run — 30 seconds. No 30-minute apt wait. |
 | 🔄 | **Atomic.** Updates to a fresh image. Old one kept as `arinanox-prev`. Instant rollback. |
 | 🎯 | **Proot-aware.** Compositing off, power daemon removed, all systemd warnings suppressed. |
 | 🎨 | **Orchis Material Design + elementary-hidpi icons.** Dark, touch-friendly, baked in. |
 | 📱 | **Termux:API.** Battery, clipboard, voice, camera, notifications — from inside proot. |
+| 🤖 | **AI Stack.** Pi, lean-ctx, ddg_search, playwright-cli pre-installed. |
 
 ---
 
@@ -111,6 +120,20 @@ The image is built from a **single Dockerfile** — your system as code.
 | 🔧 Dev | Git, Node.js 22 LTS, Python 3 (pip/venv/dev), GCC, Make, CMake |
 | 📊 Sys | htop, tmux, OpenSSH |
 | 🎨 Theme | Orchis-Dark (Material Design) + elementary-hidpi icons |
+| 🤖 AI Stack | Pi, lean-ctx, ddg_search, playwright-cli, DeepSeek config |
+
+### AI Stack (pre-installed)
+
+| Tool | Version | Function |
+|------|---------|----------|
+| [Pi](https://github.com/earendil-works/pi-coding-agent) | 0.80.6 | Agent orchestration (loop, tool-calling, LLM API) |
+| [lean-ctx](https://github.com/yvgude/lean-ctx) | 3.9.8 | Context compression (shell output, file read, session memory) |
+| [ddg_search](https://github.com/oevortex/ddg_search) | 1.4.0 | Web search via AI (IAsk) + DuckDuckGo CLI |
+| [playwright-cli](https://playwright.dev/agent-cli/) | 0.1.17 | Browser automation (Playwright Firefox 152.0.4) |
+| DeepSeek API | — | Model provider (V4 Chat, 1M context) — config `~/.pi/agent/models.json` |
+
+All tools are installed **natively inside proot** (not via Termux bind-mount).  
+See `docs/plan-ai-stack.md` for detailed setup and architecture.
 
 ### Install more with APT Store
 
@@ -192,78 +215,6 @@ arinanox install  # Apply packages from manifest
 
 ---
 
-## 🤖 AI VibeCoding Stack
-
-arinanoX can serve as a **portable AI coding workstation** — all agent tools run natively inside proot (not via Termux bind-mount).
-
-| Tool | Function | Install |
-|------|----------|---------|
-| [Pi](https://github.com/earendil-works/pi-coding-agent) | Agent orchestration (loop, tool-calling, LLM API) | `npm install -g @earendil-works/pi-coding-agent` |
-| [lean-ctx](https://github.com/yvgude/lean-ctx) | Context compression (shell output, file read, session memory) | Binary musl ARM64 from GH releases |
-| [ddg_search](https://github.com/oevortex/ddg_search) | Web search via AI (IAsk) + DuckDuckGo CLI | `npm install -g @oevortex/ddg_search` |
-| [playwright-cli](https://playwright.dev/agent-cli/) | Browser automation (Playwright Firefox) | `npm install -g @playwright/cli` + `playwright-cli install-browser firefox` |
-| DeepSeek API | Model provider (V4 Chat, 1M context) | Config `~/.pi/agent/models.json` |
-
-### Pre-installed in image
-
-All tools are **pre-installed** in the arinanoX image — no setup needed after login:
-
-| Tool | Status |
-|------|--------|
-| **Pi** v0.80.6 | ✅ `node /usr/lib/.../pi-coding-agent/dist/cli.js` |
-| **lean-ctx** v3.9.8 | ✅ `/usr/local/bin/lean-ctx` |
-| **ddg_search** v1.4.0 | ✅ `/usr/lib/.../ddg_search/` |
-| **playwright-cli** v0.1.17 | ✅ + Firefox 152.0.4 downloaded |
-| **DeepSeek config** | ✅ `~/.pi/agent/models.json` |
-| **MCP config** | ✅ `~/.pi/agent/mcp.json` |
-| **Firefox user.js** | 📦 Copy manually after first Firefox run (see below) |
-
-> **Note:** Firefox user.js is **pre-deployed** in the image. Firefox is started briefly during
-> build to create the profile, so `user.js` is ready on first launch. No manual copy needed.
-
-For first-time setup (run once after login):
-```bash
-arinanox-ai-setup
-```
-This ensures lean-ctx hooks and user.js are properly initialized.
-
-### Important: PROOT_NO_SECCOMP=1
-
-Node.js tools (Pi, ddg_search, playwright) require `export PROOT_NO_SECCOMP=1` before `proot-distro login` to work around known proot bugs:
-- `uv__io_poll: EINTR` (libuv crash)
-- `fork: Function not implemented` (seccomp blocks clone/fork)
-- `futex` error (V8/libuv thread sync)
-
-Already applied automatically in `~/.shortcuts/1-start-arinanox.sh`.
-
-### Note: Termux Bind-Mount
-
-Termux binaries (`/data/data/com.termux/files/usr/bin/...`) are bind-mounted into the proot container, but **cannot be executed** due to different linker/libc:
-- Termux: bionic libc (Android NDK)
-- Proot: glibc (Debian)
-
-The container PATH correctly points to `/usr/bin/` (proot-native). See `docs/plan-ai-stack.md` §8 for details.
-
-### Preventive Measures
-
-arinanoX applies multiple layers to prevent Termux binary shadowing:
-
-| Layer | Mechanism | Location |
-|---|---|---|
-| **1. PATH hardening** | `.bashrc` sets clean PATH + guard strips Termux paths at end of init | `~/.bashrc`, `image/configs-target/home/admin/.bashrc` |
-| **2. Runtime audit** | `arinanox doctor` checks every binary + PATH — warns if Termux found | `~/.arinanox/scripts/doctor.sh` |
-| **3. PROOT_NO_SECCOMP** | Fix fork/futex/libuv for Node.js tools | `~/.shortcuts/1-start-arinanox.sh` |
-| **4. Documentation** | Bind-mount explanation + how to audit | `README.md`, `docs/plan-ai-stack.md` §8 |
-
-Check status anytime:
-```bash
-bash ~/.arinanox/scripts/doctor.sh
-# or just binary audit:
-bash ~/.arinanox/scripts/doctor.sh 2>/dev/null | grep -E "Binary|PATH"
-```
-
----
-
 ## 📋 Termux:API (inside proot)
 
 | Command | Action |
@@ -283,15 +234,29 @@ bash ~/.arinanox/scripts/doctor.sh 2>/dev/null | grep -E "Binary|PATH"
 
 ---
 
-## 💡 Why arinanoX?
+## 🛡️ Preventive Measures
 
-| Problem | arinanoX Solution |
-|---------|-------------------|
-| Chrome sleeps tabs | Firefox ESR desktop browser — stays alive |
-| No glibc apps | Debian 13 proot — standard glibc |
-| No dev tools | Node.js 22, Python 3, GCC, CMake built-in |
-| Background killed | Termux:WakeLock keeps sessions alive |
-| No clipboard bridge | Auto-sync Android ↔ proot |
+### Termux Bind-Mount
+
+Termux binaries (`/data/data/com.termux/files/usr/bin/...`) are bind-mounted into the proot container, but **cannot be executed** due to different linker/libc:
+- Termux: bionic libc (Android NDK)
+- Proot: glibc (Debian)
+
+The container PATH correctly points to `/usr/bin/` (proot-native). See `docs/plan-ai-stack.md` §8 for details.
+
+### Protection Layers
+
+| Layer | Mechanism | Location |
+|---|---|---|
+| **1. PATH hardening** | `.bashrc` sets clean PATH + guard strips Termux paths at end of init | `~/.bashrc`, `image/configs-target/home/admin/.bashrc` |
+| **2. Runtime audit** | `arinanox doctor` checks every binary + PATH — warns if Termux found | `~/.arinanox/scripts/doctor.sh` |
+| **3. PROOT_NO_SECCOMP** | Fix fork/futex/libuv for Node.js tools (Pi, ddg_search, playwright) | `~/.shortcuts/1-start-arinanox.sh` |
+| **4. Documentation** | Bind-mount explanation + how to audit | `README.md`, `docs/plan-ai-stack.md` §8 |
+
+Check status anytime:
+```bash
+bash ~/.arinanox/scripts/doctor.sh
+```
 
 ---
 
