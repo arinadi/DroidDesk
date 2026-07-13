@@ -18,6 +18,7 @@
       <property name="border-width" type="uint" value="10"/>
       <property name="enable-struts" type="bool" value="false"/>
       <property name="autohide-behavior" type="uint" value="1"/>
+      <property name="autohide-size" type="uint" value="10"/>
     </property>
   </property>
   <property name="plugins" type="empty">
