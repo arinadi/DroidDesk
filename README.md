@@ -204,15 +204,31 @@ arinanoX can serve as a **portable AI coding workstation** — all agent tools r
 | [playwright-cli](https://playwright.dev/agent-cli/) | Browser automation (Playwright Firefox) | `npm install -g @playwright/cli` + `playwright-cli install-browser firefox` |
 | DeepSeek API | Model provider (V4 Chat, 1M context) | Config `~/.pi/agent/models.json` |
 
-### Auto install
+### Pre-installed in image
 
-After logging into proot, run:
+All tools are **pre-installed** in the arinanoX image — no setup needed after login:
 
+| Tool | Status |
+|------|--------|
+| **Pi** v0.80.6 | ✅ `node /usr/lib/.../pi-coding-agent/dist/cli.js` |
+| **lean-ctx** v3.9.8 | ✅ `/usr/local/bin/lean-ctx` |
+| **ddg_search** v1.4.0 | ✅ `/usr/lib/.../ddg_search/` |
+| **playwright-cli** v0.1.17 | ✅ + Firefox 152.0.4 downloaded |
+| **DeepSeek config** | ✅ `~/.pi/agent/models.json` |
+| **MCP config** | ✅ `~/.pi/agent/mcp.json` |
+| **Firefox user.js** | 📦 Copy manually after first Firefox run (see below) |
+
+> **Note:** Firefox user.js can't be pre-deployed because the Firefox profile is created on first launch.
+> After first Firefox run, copy it:
+> ```bash
+> cp ~/.arinanox/ai-stack/user.js ~/.mozilla/firefox/*.default-esr/
+> ```
+
+For first-time setup (run once after login):
 ```bash
-bash ~/.arinanox/ai-stack/setup-ai-stack.sh
+arinanox-ai-setup
 ```
-
-Or follow the manual steps in `docs/plan-ai-stack.md`.
+This ensures lean-ctx hooks and user.js are properly initialized.
 
 ### Important: PROOT_NO_SECCOMP=1
 

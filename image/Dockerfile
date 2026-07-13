@@ -65,16 +65,84 @@ RUN chown -R admin:admin /home/admin && \
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 
 # ═══════════════════════════════════════════════
-# Layer 5  AI VIBECODING STACK (Pi, lean-ctx, ddg_search, playwright)
-# Dipasang sebagai user admin, bukan root
+# Layer 5  AI VIBECODING STACK — pre-installed in image
+# Pi, lean-ctx, ddg_search, playwright-cli + Firefox
 # ═══════════════════════════════════════════════
-COPY configs/ai-stack /home/admin/.arinanox/ai-stack/
 
-RUN chown -R admin:admin /home/admin/.arinanox/ai-stack && \
+# ── Install npm global packages (as root) ──────────────────
+RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent@latest && \
+    npm install -g @oevortex/ddg_search@latest && \
+    npm install -g @playwright/cli@latest
+
+# ── Install lean-ctx binary (musl ARM64, statically linked) ─
+RUN LEAN_CTX_VER="v3.9.8" && \
+    ARCH="aarch64-unknown-linux-musl" && \
+    cd /tmp && \
+    curl -fsSL "https://github.com/yvgude/lean-ctx/releases/download/${LEAN_CTX_VER}/lean-ctx-${ARCH}.tar.gz" -o lean-ctx.tar.gz && \
+    tar xzf lean-ctx.tar.gz && \
+    cp lean-ctx /usr/local/bin/ && \
+    rm -f lean-ctx lean-ctx.tar.gz
+
+# ── Download Playwright Firefox browser (as admin) ─────────
+RUN sudo -u admin playwright-cli install-browser firefox 2>/dev/null || true
+
+# ── lean-ctx init for admin user ───────────────────────────
+RUN sudo -u admin /usr/local/bin/lean-ctx init --global 2>/dev/null || true && \
+    sudo -u admin /usr/local/bin/lean-ctx init --agent pi 2>/dev/null || true
+
+# ── Setup config files for admin ───────────────────────────
+COPY configs/ai-stack /home/admin/.arinanox/ai-stack/
+RUN mkdir -p /home/admin/.pi/agent && \
+    cp /home/admin/.arinanox/ai-stack/user.js /home/admin/.arinanox/ai-stack/ 2>/dev/null || true
+
+# DeepSeek models.json
+RUN echo '{
+  "providers": {
+    "deepseek": {
+      "baseUrl": "https://api.deepseek.com",
+      "api": "openai-completions",
+      "apiKey": "$DEEPSEEK_API_KEY",
+      "models": [
+        {
+          "id": "deepseek-chat",
+          "name": "DeepSeek V4 Chat",
+          "contextWindow": 1000000,
+          "maxTokens": 384000,
+          "input": ["text"],
+          "reasoning": false,
+          "compat": {
+            "requiresReasoningContentOnAssistantMessages": false,
+            "thinkingFormat": "deepseek"
+          }
+        }
+      ]
+    }
+  }
+}' > /home/admin/.pi/agent/models.json
+
+# MCP config (ddg-search via node — avoid shebang issue in proot)
+RUN echo '{
+  "mcpServers": {
+    "ddg-search": {
+      "command": "node",
+      "args": [
+        "/usr/lib/node_modules/@oevortex/ddg_search/bin/cli.js",
+        "--server"
+      ],
+      "env": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      }
+    }
+  }
+}' > /home/admin/.pi/agent/mcp.json
+
+# ── Permissions ────────────────────────────────────────────
+RUN chown -R admin:admin /home/admin/.pi /home/admin/.local /home/admin/.config 2>/dev/null || true && \
+    chown -R admin:admin /home/admin/.arinanox/ai-stack && \
     chmod +x /home/admin/.arinanox/ai-stack/*.sh
 
-# Catatan: beberapa tool perlu runtime setup (playwright install-browser, lean-ctx init)
-# Jalankan setelah container pertama kali login:
-#   bash ~/.arinanox/ai-stack/setup-ai-stack.sh
+# ── Copy setup script to system location as well ───────────
+RUN cp /home/admin/.arinanox/ai-stack/setup-ai-stack.sh /usr/local/bin/arinanox-ai-setup && \
+    chmod +x /usr/local/bin/arinanox-ai-setup
 
 CMD ["/bin/bash"]
